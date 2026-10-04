@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id()->autoIncrement();
             $table->string('name');
-            $table->string('sku')->unique();
             $table->text('description')->nullable();
             $table->decimal('cost', 10, 2)->nullable();
             $table->decimal('price', 10, 2);

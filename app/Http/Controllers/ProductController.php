@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Http\Resources\ProductResources;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -16,7 +17,9 @@ class ProductController extends Controller
     public function index( Request $request)
     {
         return Inertia::render('products/index', [
-            'products' => $request->user()->products()->latest()->paginate(15),
+            'collection' => ProductResources::collection(
+                Product::orderBy('id', 'DESC')->get(),
+            )
         ]);
     }
 
@@ -35,7 +38,7 @@ class ProductController extends Controller
     {
         $request->user()->products()->create($this->validated($request));
 
-        return redirect('/products');
+        return redirect('/products')->with('message','Product Added !');
     }
 
     /**
@@ -63,7 +66,7 @@ class ProductController extends Controller
     {
         $this->ownerOnly($request, $product);
         $product->update($this->validated($request));
-        return redirect('/products');
+        return redirect('/products')->with('message', 'Product Updated!');
     }
 
     /**
@@ -74,7 +77,7 @@ class ProductController extends Controller
         $this->ownerOnly($request, $product);
         $product->delete();
 
-        return redirect('/products');
+        return redirect('/products')->with('message','Product Deleted!');
     }
 
     private function ownerOnly(Request $request, Product $product): void
@@ -86,10 +89,9 @@ class ProductController extends Controller
     {
         return $request->validate([
             'name' => ['required', 'string', 'max:150'],
-            'sku' => ['nullable', 'string', 'max:60'],
-            'cost_price' => ['nullable', 'numeric', 'min:0'],
-            'selling_price' => ['required', 'numeric', 'min:0'],
-            'stock_quantity' => ['nullable', 'integer', 'min:0'],
+            'cost' => ['nullable', 'numeric', 'min:0'],
+            'price' => ['required', 'numeric', 'min:0'],
+            'stock' => ['nullable', 'integer', 'min:0'],
             'low_stock_threshold' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['boolean'],
         ]);
