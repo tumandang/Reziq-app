@@ -26,15 +26,15 @@ import { SquarePen, Trash } from 'lucide-react';
 
 
 const emptyForm = { id: '', name: '', desc: '', cost: '', price: '', stock: '', low_stock_threshold: '' }
-type Props ={
+type Props = {
     collection: Product
 }
 
-export default function Index({collection}: Props) {
+export default function Index({ collection }: Props) {
 
     const [open, setOpen] = useState(false);
     const { data, setData } = useForm(emptyForm);
-    const [isEdit,setIsEdit] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
     const [editId, setEditId] = useState(null);
     const handleOpenModal = () => {
         setOpen(true);
@@ -48,38 +48,38 @@ export default function Index({collection}: Props) {
         setIsEdit(false);
         setEditId(null)
     };
-    const handleSubmit = (e : any) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
-        if(isEdit && editId){
+        if (isEdit && editId) {
             router.put(`/products/${editId}`, data, {
                 onSuccess: handleCloseModal,
             });
-        }else{
-            router.post('/products', data,{
+        } else {
+            router.post('/products', data, {
                 onSuccess: handleCloseModal,
             });
         }
-        
+
     };
 
-    const handleEditMode = (product:any) =>{
+    const handleEditMode = (product: any) => {
         setData({
             id: product.id,
             name: product.name,
             desc: product.desc,
-            cost:product.cost,
-            price:product.price,
-            stock:product.stock,
-            low_stock_threshold:product.low_stock_threshold
+            cost: product.cost,
+            price: product.price,
+            stock: product.stock,
+            low_stock_threshold: product.low_stock_threshold
 
         });
         setOpen(true);
-         setIsEdit(true);
+        setIsEdit(true);
         setEditId(product.id)
     }
 
     const handleDelete = (id: any) => {
-        if(window.confirm('Are you sure to delete this product?')){
+        if (window.confirm('Are you sure to delete this product?')) {
             router.delete(`/products/${id}`)
         }
     }
@@ -105,7 +105,11 @@ export default function Index({collection}: Props) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {collection.data.map((item:any)=>(
+                        {collection.data.length === 0 ? (
+                            <TableRow>
+                                <TableCell className='text-center text-gray-400' colSpan={6}>You do not have customer yet</TableCell>
+                            </TableRow>
+                        ) : (collection.data.map((item: any) => (
                             <TableRow key={item.id}>
                                 <TableCell>#PRD{item.id}</TableCell>
                                 <TableCell>{item.name}</TableCell>
@@ -114,22 +118,23 @@ export default function Index({collection}: Props) {
                                 <TableCell>{item.stock}</TableCell>
                                 <TableCell>{item.low_stock_threshold}</TableCell>
                                 <TableCell className='flex items-center justify-end gap-x-2'>
-                                    <Button variant="outline" title='Edit' onClick={()=> handleEditMode(item)}>
-                                        <SquarePen className='text-green-600'/>
+                                    <Button variant="outline" title='Edit' onClick={() => handleEditMode(item)}>
+                                        <SquarePen className='text-green-600' />
                                     </Button>
-                                    <Button variant="outline" onClick={()=>handleDelete(item.id)}>
-                                        <Trash className='text-red-500'/>
+                                    <Button variant="outline" onClick={() => handleDelete(item.id)}>
+                                        <Trash className='text-red-500' />
                                     </Button>
                                 </TableCell>
                             </TableRow>
+                        )
                         ))}
                     </TableBody>
                 </Table>
-             </div>
+            </div>
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle>{isEdit? 'Update Product' : 'Create Product'}</DialogTitle>
+                        <DialogTitle>{isEdit ? 'Update Product' : 'Create Product'}</DialogTitle>
                         <DialogDescription>
                             Fill Your Product Details
                         </DialogDescription>
@@ -169,7 +174,7 @@ export default function Index({collection}: Props) {
                             <DialogClose asChild>
                                 <Button variant="outline">Cancel</Button>
                             </DialogClose>
-                            <Button type="submit">{isEdit?'Update': 'Create'}</Button>
+                            <Button type="submit">{isEdit ? 'Update' : 'Create'}</Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>

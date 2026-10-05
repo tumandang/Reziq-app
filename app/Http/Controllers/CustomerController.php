@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
+use App\Http\Resources\CustomerResources;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class CustomerController extends Controller
 {
@@ -13,7 +16,11 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('customers/index', [
+            'collection' => CustomerResources::collection(
+                Customer::orderBy('id', 'DESC')->get(),
+            )
+        ]);
     }
 
     /**
@@ -21,7 +28,7 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        //
+        
     }
 
     /**
@@ -29,7 +36,8 @@ class CustomerController extends Controller
      */
     public function store(StoreCustomerRequest $request)
     {
-        //
+        $request->user()->customers()->create($this->validated($request));
+        return redirect('/customers')->with('message', 'Customer Added !');
     }
 
     /**
@@ -53,14 +61,35 @@ class CustomerController extends Controller
      */
     public function update(UpdateCustomerRequest $request, Customer $customer)
     {
-        //
+        $this->ownerOnly($request, $customer);
+        $customer->update($this->validated($request));
+        return redirect('/customers')->with('message', 'Customer Updated!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Customer $customer)
+    public function destroy(Request $request,  Customer $customer)
     {
-        //
+        $this->ownerOnly($request, $customer);
+        $customer->delete();
+
+        return redirect('/customers')->with('message','Customer Deleted!');
     }
+
+     private function ownerOnly(Request $request, Customer $customer): void
+    {
+        abort_unless($customer->user_id === $request->user()->id, 403);
+    }
+
+    private function validated(Request $request): array
+    {
+        return $request->validate([
+            'name' => ['required', 'string', 'max:150'],
+            'notes' => ['nullable', 'string', 'min:0'],
+            'address' => ['required', 'string', 'min:0'],
+            'phone' => ['required', 'string', 'min:0'],
+        ]);
+    }
+    
 }

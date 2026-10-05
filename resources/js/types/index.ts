@@ -20,3 +20,11 @@ export interface Product{
     stock:number;
     low_stock_threshold:number;
 }
+export interface Customer{
+    [x: string]: any;
+    id:number;
+    name:string;
+    phone:string;
+    address:string;
+    notes:string;
+}
