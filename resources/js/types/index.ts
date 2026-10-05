@@ -28,3 +28,33 @@ export interface Customer{
     address:string;
     notes:string;
 }
+export interface OrderItem {
+    [x: string]: any;
+    id: number;
+    quantity: number;
+    unit_price: string;
+    product: {
+        id: number;
+        name: string;
+        stock_quantity: number | null;
+    };
+}
+
+export interface Order {
+    [x: string]: any;
+    id: number;
+    order_number: string;
+    status: 'pending' | 'awaiting_stock' | 'processing' | 'completed' | 'cancelled';
+    subtotal: string;
+    shipping_cost: string;
+    total_amount: string;
+    notes: string | null;
+    created_at: string;
+    items_count?: number;
+    customer: {
+        id: number;
+        name: string;
+        phone: string | null;
+    };
+    items?: OrderItem[];
+}

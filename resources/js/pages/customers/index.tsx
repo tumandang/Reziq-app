@@ -1,5 +1,4 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import products from '@/routes/products/index.js';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -20,6 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Customer } from '@/types';
 import { SquarePen, Trash } from 'lucide-react';
+import customers from '@/routes/customers';
 
 
 
@@ -180,7 +180,7 @@ Index.layout = {
     breadcrumbs: [
         {
             title: 'Customers',
-            href: products.index().url
+            href: customers.index().url
         },
     ],
 };
