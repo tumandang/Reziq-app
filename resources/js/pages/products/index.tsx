@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/input-group"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Product } from '@/types';
-import { Box, Check, Search, SquarePen, Trash, TrendingDown, TrendingUp, TriangleAlert, X } from 'lucide-react';
+import { Box, Check, Plus, Search, SquarePen, Trash, TrendingDown, TrendingUp, TriangleAlert, X } from 'lucide-react';
 
 
 
@@ -39,7 +39,7 @@ type Props = {
 export default function Index({ collection }: Props) {
 
     const [open, setOpen] = useState(false);
-    const { data, setData, get } = useForm(emptyForm);
+    const { data, setData } = useForm(emptyForm);
     const [isEdit, setIsEdit] = useState(false);
     const [editId, setEditId] = useState(null);
     const [search, setSearch] = useState("");
@@ -89,14 +89,6 @@ export default function Index({ collection }: Props) {
         }
     }
 
-    // const handleSearch = (e: any) => {
-    //     e.preventDefault();
-
-    //     router.get('products', { search }, {
-    //         preserveState: true,
-    //         replace: true
-    //     })
-    // }
 
     useEffect(() => {
         const timeOutId = setTimeout(() => {
@@ -111,7 +103,9 @@ export default function Index({ collection }: Props) {
         <>
             <Head title="Products" />
             <div className="absolute top-3 right-4 flex items-center justify-end gap-2 lg:right-6 mb-4">
-                <Button onClick={handleOpenModal}>Add Product</Button>
+                <Button onClick={handleOpenModal}className='cursor-pointer'>
+                    <Plus/>
+                    New Product</Button>
             </div>
             <div className="flex md:flex-row gap-4 px-6 py-5 justify-start flex-col">
                 <div className=" flex-1 p-6 border rounded-xl  bg-[#171717]">
@@ -200,7 +194,7 @@ export default function Index({ collection }: Props) {
                     <TableBody>
                         {collection.data.length === 0 ? (
                             <TableRow>
-                                <TableCell className='text-center text-gray-400' colSpan={6}>You do not have customer yet</TableCell>
+                                <TableCell className='text-center text-gray-400' colSpan={6}>You do not have product yet</TableCell>
                             </TableRow>
                         ) : (collection.data.map((item: any) => (
                             <TableRow key={item.id}>

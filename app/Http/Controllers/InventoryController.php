@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Inventory;
 use App\Http\Requests\StoreInventoryRequest;
 use App\Http\Requests\UpdateInventoryRequest;
+use App\Http\Resources\InventoryResources;
+use App\Models\Product;
+use Inertia\Inertia;
 
 class InventoryController extends Controller
 {
@@ -13,7 +16,12 @@ class InventoryController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('inventory/index', [
+            'collection' => InventoryResources::collection(
+                Inventory::orderBy('id', 'DESC')->get(),
+            ),
+            'products' => Product::select('id', 'name')->orderBy('name')->get(),
+        ]);
     }
 
     /**

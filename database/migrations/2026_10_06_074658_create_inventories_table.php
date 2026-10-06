@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('inventories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $table->enum('adjustment_type',['Addation', 'Subtraction']);
+            $table->string('reason')->nullable();
             $table->integer('quantity');
             $table->timestamps();
         });

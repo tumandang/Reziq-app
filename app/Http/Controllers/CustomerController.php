@@ -14,11 +14,16 @@ class CustomerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $query = Customer::query();
+        if ($request->search){
+            $query->where('name','like',"%{$request->search}%")->orWhere('phone','like',"%{$request->search}%");
+        }
+        $searchproduct = $query->orderBy('id', 'DESC')->get();
         return Inertia::render('customers/index', [
             'collection' => CustomerResources::collection(
-                Customer::orderBy('id', 'DESC')->get(),
+                $searchproduct
             )
         ]);
     }

@@ -1,7 +1,7 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import products from '@/routes/products/index.js';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Dialog,
     DialogClose,
@@ -18,8 +18,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Customer } from '@/types';
-import { SquarePen, Trash } from 'lucide-react';
+import { Plus, Search, SquarePen, Trash } from 'lucide-react';
 import customers from '@/routes/customers';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 
 
 
@@ -36,6 +37,7 @@ export default function Index({ collection }: Props) {
     const { data, setData } = useForm(emptyForm);
     const [isEdit, setIsEdit] = useState(false);
     const [editId, setEditId] = useState(null);
+    const [search, setSearch] = useState("");
     const handleOpenModal = () => {
         setOpen(true);
         setData(emptyForm);
@@ -81,13 +83,36 @@ export default function Index({ collection }: Props) {
             router.delete(`/customers/${id}`)
         }
     }
+        useEffect(() => {
+            const timeOutId = setTimeout(() => {
+                router.get('customers', { search }, {
+                    preserveState: true,
+                    replace: true
+                });
+            });
+            return () => clearTimeout(timeOutId);
+        }, [search])
 
     return (
         <>
             <Head title="Customers" />
             <div className="absolute top-3 right-4 flex items-center justify-end gap-2 lg:right-6">
-                <Button onClick={handleOpenModal}>Add New Customer</Button>
+                <Button onClick={handleOpenModal}>
+                    < Plus/>
+                    Add New Customer</Button>
             </div>
+            <div className="p-6">
+                <InputGroup className="flex-1">
+                    <InputGroupInput placeholder="Search Customers or Phone Number ...." onChange={(e) => {
+                        setSearch(e.target.value);
+                    }} />
+                    <InputGroupAddon>
+                        <Search />
+                    </InputGroupAddon>
+                    
+                </InputGroup>
+            </div>
+                            
             <div className="p-6">
                 <Table>
                     <TableHeader>

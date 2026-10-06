@@ -18,6 +18,7 @@ import type { NavItem } from '@/types';
 import products from '@/routes/products';
 import customers from '@/routes/customers';
 import orders from '@/routes/orders';
+import inventory from '@/routes/inventory';
 
 const mainNavItems: NavItem[] = [
     {
@@ -40,7 +41,7 @@ const mainNavItems: NavItem[] = [
             },
             {
                 subtitle: 'Stock Adjustment',
-                href: products.index(),
+                href: inventory.index(),
                 icon: Boxes
             }
         ]
