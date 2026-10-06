@@ -14,11 +14,16 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index( )
+    public function index( Request $request)
     {
+        $query = Product::query();
+        if ($request->search){
+            $query->where('name','like',"%{$request->search}%");
+        }
+        $searchproduct = $query->orderBy('id', 'DESC')->get();
         return Inertia::render('products/index', [
             'collection' => ProductResources::collection(
-                Product::orderBy('id', 'DESC')->get(),
+                $searchproduct
             )
         ]);
     }

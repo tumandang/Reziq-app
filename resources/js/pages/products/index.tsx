@@ -1,8 +1,7 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import products from '@/routes/products/index.js';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Dialog,
     DialogClose,
@@ -16,10 +15,17 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from '@/components/ui/textarea';
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupButton,
+    InputGroupInput,
+    InputGroupText,
+    InputGroupTextarea,
+} from "@/components/ui/input-group"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Product } from '@/types';
-import { Box, Check, SquarePen, Trash, TrendingDown, TrendingUp, TriangleAlert, X } from 'lucide-react';
+import { Box, Check, Search, SquarePen, Trash, TrendingDown, TrendingUp, TriangleAlert, X } from 'lucide-react';
 
 
 
@@ -33,9 +39,11 @@ type Props = {
 export default function Index({ collection }: Props) {
 
     const [open, setOpen] = useState(false);
-    const { data, setData } = useForm(emptyForm);
+    const { data, setData, get } = useForm(emptyForm);
     const [isEdit, setIsEdit] = useState(false);
     const [editId, setEditId] = useState(null);
+    const [search, setSearch] = useState("");
+    console.log(search);
     const handleOpenModal = () => {
         setOpen(true);
         setData(emptyForm);
@@ -81,6 +89,24 @@ export default function Index({ collection }: Props) {
         }
     }
 
+    // const handleSearch = (e: any) => {
+    //     e.preventDefault();
+
+    //     router.get('products', { search }, {
+    //         preserveState: true,
+    //         replace: true
+    //     })
+    // }
+
+    useEffect(() => {
+        const timeOutId = setTimeout(() => {
+            router.get('products', { search }, {
+                preserveState: true,
+                replace: true
+            });
+        });
+        return () => clearTimeout(timeOutId);
+    }, [search])
     return (
         <>
             <Head title="Products" />
@@ -139,10 +165,25 @@ export default function Index({ collection }: Props) {
 
             </div>
             <div className="px-6">
-                <Field orientation="horizontal">
+
+                {/* <Field orientation="horizontal">
+                    <Search />
+
                     <Input type="search" placeholder="Search Product..." />
-                    <Button>Search</Button>
-                </Field>
+                </Field> */}
+                <InputGroup className="flex-1">
+                    <InputGroupInput placeholder="Search Product..." onChange={(e) => {
+                        setSearch(e.target.value);
+                    }} />
+                    <InputGroupAddon>
+                        <Search />
+                    </InputGroupAddon>
+                    
+                </InputGroup>
+
+
+
+
             </div>
             <div className="p-6">
                 <Table>
