@@ -25,7 +25,7 @@ import { SquarePen, Trash } from 'lucide-react';
 
 
 
-const emptyForm = { id: '', name: '', desc: '', cost: '', price: '', stock: '', low_stock_threshold: '' }
+const emptyForm = { id: '', name: '', price: '', low_stock_threshold: '' }
 type Props = {
     collection: Product
 }
@@ -66,10 +66,7 @@ export default function Index({ collection }: Props) {
         setData({
             id: product.id,
             name: product.name,
-            desc: product.desc,
-            cost: product.cost,
             price: product.price,
-            stock: product.stock,
             low_stock_threshold: product.low_stock_threshold
 
         });
@@ -90,15 +87,22 @@ export default function Index({ collection }: Props) {
             <div className="absolute top-3 right-4 flex items-center justify-end gap-2 lg:right-6">
                 <Button onClick={handleOpenModal}>Add Product</Button>
             </div>
+            <div className="flex flex-row gap-4 px-6 py-5">
+                
+                <div className="p-6 border rounded-xl  bg-[#171717]">
+                    <span>Total Products</span>
+                    <h1>15</h1>
+                </div>
+                <div className="bg-red-500 block"></div>
+                <div className="bg-red-500 block"></div>
+            </div>
             <div className="p-6">
                 <Table>
                     <TableHeader>
                         <TableRow>
                             <TableHead>Product ID</TableHead>
                             <TableHead>Product Name</TableHead>
-                            <TableHead>Cost</TableHead>
                             <TableHead>Price</TableHead>
-                            <TableHead>Stock</TableHead>
                             <TableHead>Low Stock Threshold</TableHead>
                             <TableHead className='text-end'>Action</TableHead>
 
@@ -113,9 +117,7 @@ export default function Index({ collection }: Props) {
                             <TableRow key={item.id}>
                                 <TableCell>#PRD{item.id}</TableCell>
                                 <TableCell>{item.name}</TableCell>
-                                <TableCell>RM {item.cost}</TableCell>
                                 <TableCell>RM {item.price}</TableCell>
-                                <TableCell>{item.stock}</TableCell>
                                 <TableCell>{item.low_stock_threshold}</TableCell>
                                 <TableCell className='flex items-center justify-end gap-x-2'>
                                     <Button variant="outline" title='Edit' onClick={() => handleEditMode(item)}>
@@ -140,29 +142,15 @@ export default function Index({ collection }: Props) {
                         </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleSubmit}>
-                        <FieldGroup>
+                        <FieldGroup className='my-5'>
                             <Field>
                                 <Label htmlFor="name-1">Name</Label>
                                 <Input id="name-1" value={data.name} onChange={(e) => setData('name', e.target.value)} />
                             </Field>
-                            <Field>
-                                <Label htmlFor="desc">Description</Label>
-                                <Textarea id='desc' value={data.desc} placeholder="Description of the product (optional)" className='resize-none' onChange={(e) => setData('desc', e.target.value)} />
-                            </Field>
                             <div className="flex flex-col gap-3 sm:flex-row">
-                                <div className="grid gap-3">
-                                    <Label htmlFor="cost">Cost</Label>
-                                    <Input id="cost" value={data.cost} name="cost" onChange={(e) => setData('cost', e.target.value)} />
-                                </div>
                                 <div className="grid gap-3">
                                     <Label htmlFor="price">Price</Label>
                                     <Input id="price" name="price" value={data.price} onChange={(e) => setData('price', e.target.value)} />
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-3 sm:flex-row mb-5">
-                                <div className="grid gap-3">
-                                    <Label htmlFor="stock">Stock</Label>
-                                    <Input id="stock" name="stock" value={data.stock} onChange={(e) => setData('stock', e.target.value)} />
                                 </div>
                                 <div className="grid gap-3">
                                     <Label htmlFor="low_stock_threshold">Low Stock Threshold</Label>

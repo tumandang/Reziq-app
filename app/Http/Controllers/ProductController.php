@@ -89,9 +89,7 @@ class ProductController extends Controller
     {
         return $request->validate([
             'name' => ['required', 'string', 'max:150'],
-            'cost' => ['nullable', 'numeric', 'min:0'],
             'price' => ['required', 'numeric', 'min:0'],
-            'stock' => ['nullable', 'integer', 'min:0'],
             'low_stock_threshold' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['boolean'],
         ]);

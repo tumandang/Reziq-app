@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('hq_order_number')->unique();
+            $table->dateTime('order_date');
             $table->enum('status', ['Not Ordered', 'Ordered', 'Shipped', 'Delivered'])->default('Not Ordered');
-            $table->text('notes')->nullable();
+            $table->dateTime('received_at')->nullable();
             $table->timestamps();
         });
     }

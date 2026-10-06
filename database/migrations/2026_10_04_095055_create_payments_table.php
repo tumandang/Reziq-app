@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
-            $table->string('payment_reference')->unique();
             $table->decimal('amount', 10, 2);
             $table->enum('payment_method', ['QR_Code','bank_transfer', 'cod', 'online_banking'])->default('online_banking');
             $table->enum('status', ['pending', 'completed', 'failed', 'refunded'])->default('pending');
+            $table->dateTime('paid_at')->nullable();
             $table->timestamps();
         });
     }

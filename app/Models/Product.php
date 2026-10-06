@@ -10,19 +10,14 @@ class Product extends Model
     // yang boleh isi
     protected $fillable = [
         'name',
-        'description',
-        'cost',
         'price',
-        'stock',
         'low_stock_threshold',
         'is_active',
     ];
     //ubah type data automatically
     protected $casts = [
         'is_active' => 'boolean',
-        'cost' => 'decimal:2',
         'price' => 'decimal:2',
-        'stock' => 'integer',
         'low_stock_threshold' => 'integer',
     ];
 

@@ -15,9 +15,7 @@ export interface Product{
     id:number;
     name:string;
     desc:string;
-    cost:number;
     price:number;
-    stock:number;
     low_stock_threshold:number;
 }
 export interface Customer{
