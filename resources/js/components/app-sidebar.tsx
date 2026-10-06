@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, ChartColumnBig, FolderGit2, LayoutGrid, PillBottle, ShoppingCart, Tags, Truck, Users } from 'lucide-react';
+import { BookOpen, Boxes, ChartColumnBig, FolderGit2, LayoutGrid, PillBottle, ShoppingCart, Tags, Truck, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -20,56 +20,76 @@ import customers from '@/routes/customers';
 import orders from '@/routes/orders';
 
 const mainNavItems: NavItem[] = [
-    
     {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Products',
-        href: products.index(),
-        icon: PillBottle,
+        title: 'Main',
+        items: [
+            {
+                subtitle: 'Dashboard',
+                href: dashboard(),
+                icon: LayoutGrid,
+            }
+        ],
     },
     {
         title: 'Inventory',
-        href: orders.index(),
-        icon: Tags,
+        items: [
+            {
+                subtitle: 'Product',
+                href: products.index(),
+                icon: PillBottle,
+            },
+            {
+                subtitle: 'Stock Adjustment',
+                href: products.index(),
+                icon: Boxes
+            }
+        ]
     },
     {
-        title: 'HQ Orders',
-        href: orders.index(),
-        icon: Truck,
+        title: 'Bussiness',
+        items: [
+            {
+                subtitle: 'Orders',
+                href: orders.index(),
+                icon: ShoppingCart,
+            },
+            {
+                subtitle: 'Customers',
+                href: customers.index(),
+                icon: Users,
+            }
+        ]
+
     },
     {
-        title: 'Customers',
-        href: customers.index(),
-        icon: Users,
-    },
-    {
-        title: 'Orders',
-        href: orders.index(),
-        icon: ShoppingCart,
-    },
-    {
-        title: 'Report',
-        href: orders.index(),
-        icon: ChartColumnBig,
-    },
-   
+        title: 'Insight',
+        items: [{
+            subtitle: 'Report',
+            href: orders.index(),
+            icon: ChartColumnBig,
+        }]
+    }
+  
+
 ];
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
         title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
+        items: [
+            {
+                subtitle: 'Repository',
+                href: 'https://github.com/laravel/react-starter-kit',
+                icon: FolderGit2,
+            },
+            {
+                subtitle: 'Documentation',
+                href: 'https://laravel.com/docs/starter-kits#react',
+                icon: BookOpen,
+            },
+        ]
+    }
+
 ];
 
 export function AppSidebar() {
