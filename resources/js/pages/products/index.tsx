@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Product } from '@/types';
-import { SquarePen, Trash } from 'lucide-react';
+import { Box, Check, SquarePen, Trash, TrendingDown, TrendingUp, TriangleAlert, X } from 'lucide-react';
 
 
 
@@ -84,17 +84,65 @@ export default function Index({ collection }: Props) {
     return (
         <>
             <Head title="Products" />
-            <div className="absolute top-3 right-4 flex items-center justify-end gap-2 lg:right-6">
+            <div className="absolute top-3 right-4 flex items-center justify-end gap-2 lg:right-6 mb-4">
                 <Button onClick={handleOpenModal}>Add Product</Button>
             </div>
-            <div className="flex flex-row gap-4 px-6 py-5">
-                
-                <div className="p-6 border rounded-xl  bg-[#171717]">
-                    <span>Total Products</span>
-                    <h1>15</h1>
+            <div className="flex md:flex-row gap-4 px-6 py-5 justify-start flex-col">
+                <div className=" flex-1 p-6 border rounded-xl  bg-[#171717]">
+                    <div className="flex flex-row space-x-5">
+                        <div className="bg-gray-800 p-4 rounded-xl flex justify-center items-center" >
+                            <Box className='text-blue-500' />
+                        </div>
+                        <div className="flex flex-col space-y-2">
+                            <span className='text-xs uppercase'>Total Products</span>
+                            <h1 className='text-2xl font-bold'>{collection.data.length}</h1>
+                        </div>
+                    </div>
+
                 </div>
-                <div className="bg-red-500 block"></div>
-                <div className="bg-red-500 block"></div>
+                <div className="flex-1 p-6 border rounded-xl  bg-[#171717]">
+                    <div className="flex flex-row space-x-5">
+                        <div className="bg-[#22b57356] p-4 rounded-xl flex justify-center items-center">
+                            <Check className='text-green-400' />
+                        </div>
+                        <div className="flex flex-col space-y-2">
+                            <span className='text-xs uppercase'>In Stock</span>
+                            <h1 className='text-2xl font-bold'>15</h1>
+                        </div>
+                    </div>
+
+                </div>
+                <div className="flex-1 p-6 border rounded-xl  bg-[#171717]">
+                    <div className="flex flex-row space-x-5">
+                        <div className="bg-[#f59f0b63] p-4 rounded-xl flex justify-center items-center">
+                            <TriangleAlert className='text-yellow-400' />
+                        </div>
+                        <div className="flex flex-col space-y-2">
+                            <span className='text-xs uppercase'>Low Stock</span>
+                            <h1 className='text-2xl font-bold'>15</h1>
+                        </div>
+                    </div>
+
+                </div>
+                <div className="flex-1 p-6 border rounded-xl  bg-[#171717]">
+                    <div className="flex flex-row space-x-5">
+                        <div className="bg-[#ef44446c] p-4 rounded-xl flex justify-center items-center">
+                            <X className='text-red-300' />
+                        </div>
+                        <div className="flex flex-col space-y-2">
+                            <span className='text-xs uppercase'>Out of stock</span>
+                            <h1 className='text-2xl font-bold'>15</h1>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div className="px-6">
+                <Field orientation="horizontal">
+                    <Input type="search" placeholder="Search Product..." />
+                    <Button>Search</Button>
+                </Field>
             </div>
             <div className="p-6">
                 <Table>

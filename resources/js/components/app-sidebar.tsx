@@ -20,6 +20,7 @@ import customers from '@/routes/customers';
 import orders from '@/routes/orders';
 
 const mainNavItems: NavItem[] = [
+    
     {
         title: 'Dashboard',
         href: dashboard(),
