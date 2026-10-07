@@ -28,6 +28,7 @@ class Product extends Model
     //massukkan addtional attributes tanpa sentuh db
     protected $appends = [
         'is_low_stock',
+        'stock',
     ];
 
     public function user()

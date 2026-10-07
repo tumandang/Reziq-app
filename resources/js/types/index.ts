@@ -14,9 +14,10 @@ export interface Product{
     [x: string]: any;
     id:number;
     name:string;
-    desc:string;
-    price:number;
+    price:string;
     low_stock_threshold:number;
+    isactive: boolean;
+    stock:number;
 }
 export interface Inventory{
     [x: string]: any;
@@ -64,4 +65,9 @@ export interface Order {
         phone: string | null;
     };
     items?: OrderItem[];
+}
+
+export interface CartItem {
+    product: Product,
+    quantity: number
 }

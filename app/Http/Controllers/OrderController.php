@@ -19,11 +19,11 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-          return Inertia::render('orders/index', [
-       'collection' => OrderResources::collection(
-           $request->user()->orders()->with('customer:id,name')->withCount('items')->latest()->paginate(15)
-       ),
-   ]);
+        return Inertia::render('orders/index', [
+            'collection' => OrderResources::collection(
+                $request->user()->orders()->with('customer:id,name')->withCount('items')->latest()->paginate(15)
+            ),
+        ]);
     }
 
     /**
@@ -35,9 +35,10 @@ class OrderController extends Controller
             'customers' => $request->user()->customers()
                 ->orderBy('name')->get(['id', 'name', 'phone']),
             'products' => $request->user()->products()
+                ->withStock()
                 ->where('is_active', true)
                 ->orderBy('name')
-                ->get(['id', 'name', 'price', 'stock']),
+                ->get(['id', 'name', 'price', 'is_active', 'low_stock_threshold']),
         ]);
     }
 
