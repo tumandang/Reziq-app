@@ -30,12 +30,24 @@ class Product extends Model
         'is_low_stock',
     ];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function inventory(){
+    public function inventory()
+    {
         return $this->hasMany(Inventory::class);
+    }
+
+    public function scopeWithStock($query)
+    {
+        return $query->withSum(['inventory as added' => fn($q) => $q->where('adjustment_type', 'Addation')], 'quantity')
+            ->withSum(['inventory as subtracted' => fn($q) => $q->where('adjustment_type', 'Subtraction')], 'quantity');
+    }
+    public function getStockAttribute(): int
+    {
+        return (int) ($this->added ?? 0) - (int) ($this->subtracted ?? 0);
     }
     /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory;

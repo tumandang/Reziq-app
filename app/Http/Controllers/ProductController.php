@@ -16,16 +16,20 @@ class ProductController extends Controller
      */
     public function index( Request $request)
     {
-        $query = Product::query();
+        
+        $query = $request->user()->products()->withStock();
         if ($request->search){
             $query->where('name','like',"%{$request->search}%");
         }
         $searchproduct = $query->orderBy('id', 'DESC')->get();
+        
         return Inertia::render('products/index', [
             'collection' => ProductResources::collection(
                 $searchproduct
+                  
             )
         ]);
+        
     }
 
     /**

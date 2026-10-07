@@ -18,6 +18,15 @@ export interface Product{
     price:number;
     low_stock_threshold:number;
 }
+export interface Inventory{
+    [x: string]: any;
+    id:number;
+    product_id:number;
+    adjustment_type:string;
+    reason:string;
+    quantity:number;
+    created_at:string;
+}
 export interface Customer{
     [x: string]: any;
     id:number;

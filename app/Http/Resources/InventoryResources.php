@@ -22,7 +22,10 @@ class InventoryResources extends JsonResource
                 'price' => $this->product->price,
                 'low_stock_threshold' => $this->product->stock,
             ],
-            'quantity' => $this->quantity
+            'quantity' => $this->quantity,
+            'created_at' => $this->created_at,
+            'reason'=> $this->reason,
+            'adjustment_type' => $this->adjustment_type
             
         ];
     }

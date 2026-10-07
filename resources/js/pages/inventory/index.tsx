@@ -23,10 +23,9 @@ import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Product } from '@/types';
 import { ChevronDown, Eye, Plus, SquarePen, Trash } from 'lucide-react';
 import inventory from '@/routes/inventory';
-
+import { Badge } from "@/components/ui/badge"
 const emptyForm = { product_id: '', adjustment_type: '', quantity: '', reason: '' }
 type Props = {
     collection: { data: any[] }
@@ -35,9 +34,9 @@ type Props = {
 
 export default function Index({ collection, products }: Props) {
     const adjustmentTypes = [
-    { value: 'addition', label: 'Addition ( + Stock In )' },
-    { value: 'subtraction', label: 'Subtraction ( - Stock In )' },
-]
+        { value: 'Addation', label: 'Addition ( + Stock In )' },
+        { value: 'Subtraction', label: 'Subtraction ( - Stock In )' },
+    ]
     const [open, setOpen] = useState(false);
     const { data, setData } = useForm(emptyForm);
     const [isEdit, setIsEdit] = useState(false);
@@ -58,23 +57,42 @@ export default function Index({ collection, products }: Props) {
     const handleSubmit = (e: any) => {
         e.preventDefault();
         if (isEdit && editId) {
-            router.put(`/products/${editId}`, data, {
+            router.put(`/inventory/${editId}`, data, {
                 onSuccess: handleCloseModal,
             });
         } else {
-            router.post('/products', data, {
+            router.post('/inventory', data, {
                 onSuccess: handleCloseModal,
             });
         }
 
     };
-    const selectedAdjustType = adjustmentTypes.find(
-    (type) => type.value === data.adjustment_type
-);
+    const handleEditMode = (stock: any) => {
+        setData({
+            product_id: stock.id,
+            adjustment_type: stock.adjustment_type,
+            reason: stock.reason,
+            quantity: stock.quantity,
 
+        });
+        setOpen(true);
+        setIsEdit(true);
+        setEditId(stock.id)
+    }
+
+    const selectedAdjustType = adjustmentTypes.find(
+        (type) => type.value === data.adjustment_type
+    );
+    const stockAddedCount = collection.data.filter(
+        (item: any) => item.adjustment_type === 'Addation'
+    ).length;
+    const stockMinusCount = collection.data.filter(
+        (item: any) => item.adjustment_type === 'Subtraction'
+    ).length;
+    const productCount = products.length;
     const handleDelete = (id: any) => {
-        if (window.confirm('Are you sure to delete this product?')) {
-            router.delete(`/products/${id}`)
+        if (window.confirm('Are you sure to delete this stock adjustment?')) {
+            router.delete(`/inventory/${id}`)
         }
     }
     return (
@@ -91,7 +109,7 @@ export default function Index({ collection, products }: Props) {
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Total Adjustment</span>
                             <h1 className='text-2xl font-bold'>{collection.data.length}</h1>
-                            <p className='text-xs'>This Month</p>
+                            
                         </div>
                     </div>
 
@@ -100,8 +118,13 @@ export default function Index({ collection, products }: Props) {
                     <div className="flex flex-row space-x-5">
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Stock Added ( + ) </span>
-                            <h1 className='text-2xl font-bold'>45 items</h1>
-                            <p className='text-xs'>This Month</p>
+                              {stockAddedCount > 1 ? (
+                                <h1 className='text-2xl font-bold'>{stockAddedCount} items</h1>
+                            ):
+                                <h1 className='text-2xl font-bold'>{stockAddedCount} item</h1>
+                            }
+                            
+                            
                         </div>
                     </div>
 
@@ -111,8 +134,13 @@ export default function Index({ collection, products }: Props) {
 
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Stock Subtracted ( - )</span>
-                            <h1 className='text-2xl font-bold'>18 items</h1>
-                            <p className='text-xs'>Damaged / Expired</p>
+                            {stockMinusCount > 1 ? (
+                                <h1 className='text-2xl font-bold'>{stockMinusCount} items</h1>
+                            ):
+                                <h1 className='text-2xl font-bold'>{stockMinusCount} item</h1>
+                            }
+                            
+                            
                         </div>
                     </div>
 
@@ -121,8 +149,8 @@ export default function Index({ collection, products }: Props) {
                     <div className="flex flex-row space-x-5">
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Total Product </span>
-                            <h1 className='text-2xl font-bold'>15</h1>
-                            <p className='text-xs'>Product Stock Adjusment</p>
+                            <h1 className='text-2xl font-bold'>{productCount}</h1>
+                            
                         </div>
                     </div>
 
@@ -150,13 +178,26 @@ export default function Index({ collection, products }: Props) {
                             </TableRow>
                         ) : (collection.data.map((item: any) => (
                             <TableRow key={item.id}>
-                                <TableCell>#PRD{item.id}</TableCell>
-                                <TableCell>{item.name}</TableCell>
-                                <TableCell>RM {item.price}</TableCell>
-                                <TableCell>{item.low_stock_threshold}</TableCell>
+                                <TableCell>#ADJ{item.id}</TableCell>
+                                <TableCell>{new Date(item.created_at).toLocaleDateString()}</TableCell>
+                                <TableCell>{item.product?.name}</TableCell>
+                                <TableCell>
+
+                                    {item.adjustment_type === 'Addation' ? (
+                                        <Badge className="bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300">
+                                           + Stock In
+                                        </Badge>
+                                    ) :
+                                        <Badge className="bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300">
+                                            - Stock Out
+                                        </Badge>
+                                    }
+                                </TableCell>
+                                <TableCell>{item.quantity}</TableCell>
+                                <TableCell>{item.reason}</TableCell>
                                 <TableCell className='flex items-center justify-end gap-x-2'>
-                                    <Button variant="outline" title='View'>
-                                        <Eye />
+                                    <Button variant="outline" title='Edit' onClick={() => handleEditMode(item)}>
+                                        <SquarePen />
                                     </Button>
                                     <Button variant="outline" onClick={() => handleDelete(item.id)}>
                                         <Trash className='text-red-500' />
@@ -171,7 +212,7 @@ export default function Index({ collection, products }: Props) {
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle>{isEdit ? 'Update Product' : 'New Adjusment'}</DialogTitle>
+                        <DialogTitle>{isEdit ? 'Update Adjustment' : 'New Adjusment'}</DialogTitle>
                         <DialogDescription>
                             Fill Your Adjusment Product Stocks Details
                         </DialogDescription>
@@ -211,7 +252,7 @@ export default function Index({ collection, products }: Props) {
                                 </DropdownMenu>
                             </Field>
                             <div className="flex flex-col gap-3 sm:flex-row ">
-                                <div className="grid gap-3  w-5/6">
+                                <div className="grid gap-3  w-50">
                                     <Label htmlFor="price">Adjustment Type</Label>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -222,18 +263,18 @@ export default function Index({ collection, products }: Props) {
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width)">
                                             <DropdownMenuGroup>
-            
-                                                    <DropdownMenuRadioGroup
-                                                        value={String(data.adjustment_type)}
-                                                        onValueChange={(value) => setData('adjustment_type', value)}
-                                                    >
-                                                        {adjustmentTypes.map((p: any) => (
-                                                            <DropdownMenuRadioItem key={p.value} value={p.value}>
-                                                                {p.label}
-                                                            </DropdownMenuRadioItem>
-                                                        ))}
-                                                    </DropdownMenuRadioGroup>
-                                            
+
+                                                <DropdownMenuRadioGroup
+                                                    value={String(data.adjustment_type)}
+                                                    onValueChange={(value) => setData('adjustment_type', value)}
+                                                >
+                                                    {adjustmentTypes.map((p: any) => (
+                                                        <DropdownMenuRadioItem key={p.value} value={p.value}>
+                                                            {p.label}
+                                                        </DropdownMenuRadioItem>
+                                                    ))}
+                                                </DropdownMenuRadioGroup>
+
 
                                             </DropdownMenuGroup>
                                         </DropdownMenuContent>
@@ -241,12 +282,12 @@ export default function Index({ collection, products }: Props) {
                                 </div>
                                 <div className="grid gap-3 ">
                                     <Label htmlFor="quantity">Adjust Quantity</Label>
-                                    <Input id="quantity" name="quantity" />
+                                    <Input id="quantity" name="quantity" onChange={(e) => setData('quantity', e.target.value)} />
                                 </div>
                             </div>
                             <div className="grid gap-3">
-                                    <Label htmlFor="Reason">Reason</Label>
-                                    <Input id="Reason" name="quantity" />
+                                <Label htmlFor="Reason">Reason</Label>
+                                <Input id="Reason" name="Reason" onChange={(e) => setData('reason', e.target.value)} />
                             </div>
                         </FieldGroup>
                         <DialogFooter>

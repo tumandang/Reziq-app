@@ -89,6 +89,18 @@ export default function Index({ collection }: Props) {
         }
     }
 
+    const inStockCount = collection.data.filter(
+        (item: any) => item.stock > item.low_stock_threshold && item.stock > item.low_stock_threshold  + 3
+    ).length;
+
+    const outStockCount = collection.data.filter(
+        (item:any) => item.stock < item.low_stock_threshold
+    ).length;
+
+    const LowStockCount = collection.data.filter(
+        (item:any) => item.stock === item.low_stock_threshold || item.stock < item.low_stock_threshold  + 3
+    ).length;
+
 
     useEffect(() => {
         const timeOutId = setTimeout(() => {
@@ -103,8 +115,8 @@ export default function Index({ collection }: Props) {
         <>
             <Head title="Products" />
             <div className="absolute top-3 right-4 flex items-center justify-end gap-2 lg:right-6 mb-4">
-                <Button onClick={handleOpenModal}className='cursor-pointer'>
-                    <Plus/>
+                <Button onClick={handleOpenModal} className='cursor-pointer'>
+                    <Plus />
                     New Product</Button>
             </div>
             <div className="flex md:flex-row gap-4 px-6 py-5 justify-start flex-col">
@@ -127,7 +139,8 @@ export default function Index({ collection }: Props) {
                         </div>
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>In Stock</span>
-                            <h1 className='text-2xl font-bold'>15</h1>
+                            <h1 className='text-2xl font-bold'>{inStockCount}
+                            </h1>
                         </div>
                     </div>
 
@@ -139,7 +152,7 @@ export default function Index({ collection }: Props) {
                         </div>
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Low Stock</span>
-                            <h1 className='text-2xl font-bold'>15</h1>
+                            <h1 className='text-2xl font-bold'>{LowStockCount}</h1>
                         </div>
                     </div>
 
@@ -151,7 +164,7 @@ export default function Index({ collection }: Props) {
                         </div>
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Out of stock</span>
-                            <h1 className='text-2xl font-bold'>15</h1>
+                            <h1 className='text-2xl font-bold'>{outStockCount}</h1>
                         </div>
                     </div>
 
@@ -172,7 +185,7 @@ export default function Index({ collection }: Props) {
                     <InputGroupAddon>
                         <Search />
                     </InputGroupAddon>
-                    
+
                 </InputGroup>
 
 
@@ -186,6 +199,7 @@ export default function Index({ collection }: Props) {
                             <TableHead>Product ID</TableHead>
                             <TableHead>Product Name</TableHead>
                             <TableHead>Price</TableHead>
+                            <TableHead>Stock</TableHead>
                             <TableHead>Low Stock Threshold</TableHead>
                             <TableHead className='text-end'>Action</TableHead>
 
@@ -201,6 +215,7 @@ export default function Index({ collection }: Props) {
                                 <TableCell>#PRD{item.id}</TableCell>
                                 <TableCell>{item.name}</TableCell>
                                 <TableCell>RM {item.price}</TableCell>
+                                <TableCell>{item.stock}</TableCell>
                                 <TableCell>{item.low_stock_threshold}</TableCell>
                                 <TableCell className='flex items-center justify-end gap-x-2'>
                                     <Button variant="outline" title='Edit' onClick={() => handleEditMode(item)}>

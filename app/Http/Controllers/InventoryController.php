@@ -7,6 +7,7 @@ use App\Http\Requests\StoreInventoryRequest;
 use App\Http\Requests\UpdateInventoryRequest;
 use App\Http\Resources\InventoryResources;
 use App\Models\Product;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class InventoryController extends Controller
@@ -14,13 +15,16 @@ class InventoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         return Inertia::render('inventory/index', [
             'collection' => InventoryResources::collection(
-                Inventory::orderBy('id', 'DESC')->get(),
+                Inventory::with('product')
+                    ->whereHas('product', fn($q) => $q->where('user_id', $request->user()->id))
+                    ->latest('id')
+                    ->get(),
             ),
-            'products' => Product::select('id', 'name')->orderBy('name')->get(),
+            'products' => $request->user()->products()->select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 
@@ -37,7 +41,10 @@ class InventoryController extends Controller
      */
     public function store(StoreInventoryRequest $request)
     {
-        //
+        $data = $request->validated();
+        $product = $request->user()->products()->findOrFail($data['product_id']);
+        $product->inventory()->create($data);
+        return redirect('/inventory')->with('message', 'Inventory Adjusted !');
     }
 
     /**
@@ -51,9 +58,9 @@ class InventoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Inventory $inventory)
+    public function edit(Inventory $inventory, Request $request)
     {
-        //
+        // 
     }
 
     /**
@@ -61,14 +68,24 @@ class InventoryController extends Controller
      */
     public function update(UpdateInventoryRequest $request, Inventory $inventory)
     {
-        //
+        $this->ownerOnly($request, $inventory);
+        $inventory->update($this->validated($request));
+        return redirect('/inventory')->with('message', 'Stock Updated!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Inventory $inventory)
+    public function destroy(Request $request, Inventory $inventory)
     {
-        //
+        $this->ownerOnly($request, $inventory);
+        $inventory->delete();
+
+        return redirect('/inventory')->with('message', 'Product Deleted!');
+    }
+
+    private function ownerOnly(Request $request, Inventory $inventory): void
+    {
+        abort_unless($inventory->product->user_id === $request->user()->id, 403);
     }
 }
