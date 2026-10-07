@@ -1,16 +1,19 @@
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { CartItem, Product } from "@/types";
+import { CartItem, Customer, Product } from "@/types";
 import { Head, Link } from "@inertiajs/react";
 import { LayoutGrid, Search } from "lucide-react";
 import { useState } from "react";
 import ProductGrid from "./product-grid";
 import CartPanel from "./cart-panel";
 import { useCart } from "./use-cart";
+import orders from "@/routes/orders";
+import CustomerPanel from "./customer-panel";
 
 interface Props {
     products: Product[];
+    customers: Customer[];
 }
-export default function Create({ products }: Props) {
+export default function Create({ products,customers }: Props) {
     const [search, setSearch] = useState('');
     const [cart, setCart] = useState<CartItem[]>([]);
     const filtered = products.filter(p =>
@@ -19,35 +22,37 @@ export default function Create({ products }: Props) {
     const {items,subtotal,addItem,removeItem,setQuantity,clear} = useCart();
 
     
+    const [customerId, setCustomerId] = useState('');
 
     return (
         <>
             <Head title="Point of Sale" />
             <div className="flex h-screen flex-col">
-                <div className="flex items-center gap-4 border-b px-4 py-3">
-                    <Link href="/dashboard" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
-                        <LayoutGrid className="h-5 w-5" />
-                    </Link>
-                    <span className="font-semibold">Point of Sale</span>
-                    <div className="relative ml-4 flex-1 max-w-sm">
-                        <InputGroup className="flex-1">
-                            <InputGroupInput placeholder="Search Orders..." value={search} onChange={e => setSearch(e.target.value)}/>
-                            <InputGroupAddon>
-                                <Search />
-                            </InputGroupAddon>
-
-                        </InputGroup>
-                    </div>
-                </div>
 
                 <div className="flex flex-1 overflow-hidden">
                     <ProductGrid products={filtered} onAdd={addItem}/>
-                    <CartPanel items ={items} subtotal= {subtotal} onRemove ={removeItem} onSetQuantity={setQuantity} onClear = {clear} />
+                    <div className="flex flex-col ">
+                        <CustomerPanel customers={customers} value={customerId} onChange={setCustomerId}/>
+                        <CartPanel items ={items} subtotal= {subtotal} onRemove ={removeItem} onSetQuantity={setQuantity} onClear = {clear} />
+                    </div>
+                    
                 </div>
-
+                    
             </div>
 
         </>
     )
 
 }
+Create.layout = {
+    breadcrumbs: [
+        {
+            title: 'Orders',
+            href: orders.index().url,
+        },
+        {
+            title: 'Point of Sale',
+            href: orders.create().url,
+        }
+    ],
+};

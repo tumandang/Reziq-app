@@ -39,7 +39,7 @@ type Props = {
     breadcrumbs?: BreadcrumbItem[];
 };
 
-const mainNavItems: NavItem[] = [
+const mainNavItems: HeaderNavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
@@ -47,10 +47,13 @@ const mainNavItems: NavItem[] = [
     },
 ];
 
-const rightNavItems: NavItem[] = [
+type HeaderNavItem = Omit<NavItem, 'href'> & {
+    href: NonNullable<NavItem['href']>;
+};
+const rightNavItems: HeaderNavItem[] = [
     {
         title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
+        href: 'https://github.com/tumandang/Reziq-app.git',
         icon: Folder,
     },
     {

@@ -94,11 +94,11 @@ export default function Index({ collection }: Props) {
     ).length;
 
     const outStockCount = collection.data.filter(
-        (item:any) => item.stock < item.low_stock_threshold
+        (item:any) => item.stock === 0
     ).length;
 
     const LowStockCount = collection.data.filter(
-        (item:any) => item.stock === item.low_stock_threshold || item.stock < item.low_stock_threshold  + 3
+        (item:any) => item.stock === item.low_stock_threshold || item.stock < item.low_stock_threshold  + 3 && item.stock !== 0
     ).length;
 
 

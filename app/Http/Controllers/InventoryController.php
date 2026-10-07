@@ -44,6 +44,9 @@ class InventoryController extends Controller
         $data = $request->validated();
         $product = $request->user()->products()->findOrFail($data['product_id']);
         $product->inventory()->create($data);
+
+        $product->is_active = $product->stock > 0;
+        $product->save();
         return redirect('/inventory')->with('message', 'Inventory Adjusted !');
     }
 

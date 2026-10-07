@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card,  CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Product } from "@/types";
 import { Plus } from "lucide-react";
 
@@ -8,7 +8,6 @@ export interface CartItem {
     product: Product,
     quantity: number
 }
-const isActive = (p: Product) => Number(p.isactive) === 1 || p.isactive === true;
 interface Props {
     products: Product[];
     onAdd: (product: Product) => void;
@@ -36,11 +35,6 @@ export default function ProductGrid({ products, onAdd }: Props) {
                                 <span className="text-4xl font-semibold uppercase tracking-wide text-muted-foreground/70">
                                     {product.name.substring(0, 2)}
                                 </span>
-
-                                <Badge variant={product.is_active ? "secondary" : "outline"} className="absolute right-3 top-3 "
-                                >
-                                    {product.is_active ? "Active" : "Inactive"}
-                                </Badge>
                             </div>
 
                             <CardHeader className="gap-1 pt-4">
