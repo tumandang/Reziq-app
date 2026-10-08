@@ -41,6 +41,15 @@ const statusLabel: Record<Order['status'], string> = {
     completed: 'Completed',
     cancelled: 'Cancelled',
 };
+
+const paymentMethodLabel: Record<string, string> = {
+    bank_transfer: "Bank Transfer",
+    credit_card: "Credit Card",
+    online_banking: "Online Banking",
+    QR_Code: "QR Code",
+    cod: "Cash On Delivery",
+};
+
 const statusColor: Record<Order['status'], string> = {
     pending: 'bg-gray-500/15 text-gray-400',
     awaiting_stock: 'bg-amber-500/15 text-amber-500',
@@ -204,6 +213,7 @@ export default function Index({ collection }: Props) {
                             <TableHead>Subtotal</TableHead>
                             <TableHead>Shipping Cost</TableHead>
                             <TableHead>Status</TableHead>
+                            <TableHead>Payment Method</TableHead>
                             <TableHead className="">Action</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -229,6 +239,8 @@ export default function Index({ collection }: Props) {
                                             {statusLabel[item.status] ?? item.status}
                                         </span>
                                     </TableCell>
+                                    <TableCell>{paymentMethodLabel[item.payment?.payment_method ?? ""] ?? "-"}</TableCell>
+
                                     <TableCell className="flex items-center justify-start gap-x-2">
                                         <Button variant="outline" title='Shipment' onClick={() => openDetails(item)}>
                                             <Truck className='text-yellow-300' />
