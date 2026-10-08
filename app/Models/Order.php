@@ -9,10 +9,25 @@ use Illuminate\Support\Str;
 class Order extends Model
 {
 
-    protected $fillable = [
-    'customer_id', 'status', 'subtotal',
-    'shipping_cost', 'total_amount', 'notes',
+protected $fillable = [
+    'status',
+    'order_date',
+    'subtotal',
+    'shipping_cost',
+    'total_amount',
+    'notes',
+    'customer_id',
+    'user_id',
+];
+protected function casts(): array
+{
+    return [
+        'order_date' => 'datetime',
+        'subtotal' => 'decimal:2',
+        'shipping_cost' => 'decimal:2',
+        'total_amount' => 'decimal:2',
     ];
+}
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -28,11 +43,13 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    protected static function booted(): void
-    {
-        static::creating(function (Order $order) {
-            $order->order_number ??= 'ORD-' . now()->format('ymd') . '-' . strtoupper(Str::random(4));
-        });
+    public function payment()  { 
+        return $this->hasOne(Payment::class); 
+        
+    }
+
+    public function shipment() { 
+        return $this->hasOne(Shipment::class);
     }
 
     /** @use HasFactory<\Database\Factories\OrderFactory> */

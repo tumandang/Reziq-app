@@ -1,5 +1,5 @@
 import { Customer } from "@/types";
-import { Link, useForm } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
 import { ChevronDown, Plus } from "lucide-react";
 import {
     DropdownMenu,
@@ -9,69 +9,57 @@ import {
     DropdownMenuRadioGroup,
     DropdownMenuRadioItem,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import customers from "@/routes/customers";
-export interface CustomerList {
-    customer: Customer
-}
+
 interface Props {
     customers: Customer[];
     value: string;
     onChange: (id: string) => void;
 }
-const emptyForm = { customer_id: '' };
 
 export default function CustomerPanel({ customers, value, onChange }: Props) {
-    const { data, setData } = useForm(emptyForm);
     if (customers.length === 0) {
         return (
-            <div className="flex  w-80  border items-center justify-center text-muted-foreground ">
-                <div className="flex items-center justify-between border-b px-4 py-3 gap-x-4">
+            <div className="flex w-80 items-center justify-center border text-muted-foreground">
+                <div className="flex items-center justify-between gap-x-4 px-4 py-3">
                     <span>No Customer Found.</span>
-                    <Link href='/customers' className="rounded-xl bg-transparent border px-2 py-1 text-sm text-black flex text-center justify-center shadow"><Plus className="text-white" /></Link>
+                    <Link href="/customers" className="flex justify-center rounded-xl border px-2 py-1 shadow">
+                        <Plus className="size-4" />
+                    </Link>
                 </div>
-                
             </div>
-        )
+        );
     }
-    const selectedCust = customers.find((p) => String(p.id) === String(data.customer_id));
+
+    const selectedCust = customers.find(c => String(c.id) === value);
+
     return (
         <div className="flex w-80 flex-col border">
             <div className="flex items-center justify-between border-b px-4 py-3">
                 <h1 className="text-muted-foreground">Customer</h1>
             </div>
-            
+
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="outline" type="button" className="w-full justify-between font-normal px-4 py-3">
-                        {selectedCust ? `${selectedCust.name} - ${selectedCust.phone}` : 'Choose a Customers'}
+                    <Button variant="outline" type="button" className="w-full justify-between px-4 py-3 font-normal">
+                        {selectedCust ? `${selectedCust.name} - ${selectedCust.phone}` : 'Choose a customer'}
                         <ChevronDown className="size-4 opacity-50" />
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width)">
                     <DropdownMenuGroup>
-                        <DropdownMenuLabel >Choose a Customer
-                        </DropdownMenuLabel>
-                        {customers.length === 0 ? (
-                            <div className="px-2 py-1.5 text-sm text-gray-400">Add Customer first</div>
-                        ) : (
-                            <DropdownMenuRadioGroup
-                                value={String(data.customer_id)}
-                                onValueChange={(value) => setData('customer_id', value)}
-                            >
-                                {customers.map((p) => (
-                                    <DropdownMenuRadioItem key={p.id} value={String(p.id)}>
-                                        {p.name}-{p.phone}
-                                    </DropdownMenuRadioItem>
-                                ))}
-                            </DropdownMenuRadioGroup>
-                        )}
-
+                        <DropdownMenuLabel>Choose a customer</DropdownMenuLabel>
+                        <DropdownMenuRadioGroup value={value} onValueChange={onChange}>
+                            {customers.map(c => (
+                                <DropdownMenuRadioItem key={c.id} value={String(c.id)}>
+                                    {c.name} - {c.phone}
+                                </DropdownMenuRadioItem>
+                            ))}
+                        </DropdownMenuRadioGroup>
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>
-
-    )
+    );
 }

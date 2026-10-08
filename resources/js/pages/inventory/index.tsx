@@ -1,6 +1,6 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Dialog,
     DialogClose,
@@ -26,13 +26,33 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ChevronDown, Eye, Plus, SquarePen, Trash } from 'lucide-react';
 import inventory from '@/routes/inventory';
 import { Badge } from "@/components/ui/badge"
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
 const emptyForm = { product_id: '', adjustment_type: '', quantity: '', reason: '' }
 type Props = {
-    collection: { data: any[] }
-    products: { id: number; name: string }[]
+    collection: {
+        data: any[];
+        current_page: number;
+        last_page: number;
+        total: number;
+    };
+    products: { id: number; name: string }[];
+    statistics: {
+        total_adjustment: number;
+        stock_added: number;
+        stock_subtracted: number;
+        total_product: number;
+    };
 }
 
-export default function Index({ collection, products }: Props) {
+export default function Index({ collection, products,statistics }: Props) {
     const adjustmentTypes = [
         { value: 'Addation', label: 'Addition ( + Stock In )' },
         { value: 'Subtraction', label: 'Subtraction ( - Stock In )' },
@@ -41,6 +61,12 @@ export default function Index({ collection, products }: Props) {
     const { data, setData } = useForm(emptyForm);
     const [isEdit, setIsEdit] = useState(false);
     const [editId, setEditId] = useState(null);
+    const handlePageChange = (page: number) => {
+        router.get('/inventory', { page }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
     const selectedProduct = products.find((p) => String(p.id) === String(data.product_id));
     const handleOpenModal = () => {
         setOpen(true);
@@ -108,8 +134,8 @@ export default function Index({ collection, products }: Props) {
                     <div className="flex flex-row space-x-5">
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Total Adjustment</span>
-                            <h1 className='text-2xl font-bold'>{collection.data.length}</h1>
-                            
+                            <h1 className='text-2xl font-bold'>{statistics.total_adjustment}</h1>
+
                         </div>
                     </div>
 
@@ -118,13 +144,13 @@ export default function Index({ collection, products }: Props) {
                     <div className="flex flex-row space-x-5">
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Stock Added ( + ) </span>
-                              {stockAddedCount > 1 ? (
-                                <h1 className='text-2xl font-bold'>{stockAddedCount} items</h1>
-                            ):
-                                <h1 className='text-2xl font-bold'>{stockAddedCount} item</h1>
+                            {stockAddedCount > 1 ? (
+                                <h1 className='text-2xl font-bold'>{statistics.stock_added} items</h1>
+                            ) :
+                                <h1 className='text-2xl font-bold'>{statistics.stock_added} item</h1>
                             }
-                            
-                            
+
+
                         </div>
                     </div>
 
@@ -135,12 +161,12 @@ export default function Index({ collection, products }: Props) {
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Stock Subtracted ( - )</span>
                             {stockMinusCount > 1 ? (
-                                <h1 className='text-2xl font-bold'>{stockMinusCount} items</h1>
-                            ):
-                                <h1 className='text-2xl font-bold'>{stockMinusCount} item</h1>
+                                <h1 className='text-2xl font-bold'>{statistics.stock_subtracted}  items</h1>
+                            ) :
+                                <h1 className='text-2xl font-bold'>{statistics.stock_subtracted}  item</h1>
                             }
-                            
-                            
+
+
                         </div>
                     </div>
 
@@ -149,8 +175,8 @@ export default function Index({ collection, products }: Props) {
                     <div className="flex flex-row space-x-5">
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Total Product </span>
-                            <h1 className='text-2xl font-bold'>{productCount}</h1>
-                            
+                            <h1 className='text-2xl font-bold'>{statistics.total_product} </h1>
+
                         </div>
                     </div>
 
@@ -185,7 +211,7 @@ export default function Index({ collection, products }: Props) {
 
                                     {item.adjustment_type === 'Addation' ? (
                                         <Badge className="bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300">
-                                           + Stock In
+                                            + Stock In
                                         </Badge>
                                     ) :
                                         <Badge className="bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300">
@@ -209,6 +235,48 @@ export default function Index({ collection, products }: Props) {
                     </TableBody>
                 </Table>
             </div>
+
+            <Pagination>
+                <PaginationContent>
+                    <PaginationItem>
+                        <PaginationPrevious href="#" onClick={(e) => {
+                            e.preventDefault();
+                            if (collection.current_page > 1) {
+                                handlePageChange(collection.current_page - 1)
+                            }
+                        }} />
+                    </PaginationItem>
+                    {Array.from(
+                        { length: collection.last_page },
+                        (_, index) => index + 1
+                    ).map((page) => (
+                        <PaginationItem key={page}>
+                            <PaginationLink
+                                href="#"
+                                isActive={page === collection.current_page}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handlePageChange(page);
+                                }}
+                            >
+                                {page}
+                            </PaginationLink>
+                        </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                        <PaginationNext
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+
+                                if (collection.current_page < collection.last_page) {
+                                    handlePageChange(collection.current_page + 1);
+                                }
+                            }}
+                        />
+                    </PaginationItem>
+                </PaginationContent>
+            </Pagination>
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-sm">
                     <DialogHeader>

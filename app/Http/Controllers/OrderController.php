@@ -7,9 +7,11 @@ use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Resources\CustomerResources;
 use App\Http\Resources\OrderResources;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class OrderController extends Controller
@@ -33,7 +35,7 @@ class OrderController extends Controller
     {
         return Inertia::render('orders/create', [
             'customers' => $request->user()->customers()
-                ->orderBy('name')->get(['id', 'name', 'phone']),
+                ->orderBy('name')->get(['id', 'name', 'phone', 'address']),
             'products' => $request->user()->products()
                 ->withStock()
                 ->where('is_active', true)
@@ -48,19 +50,12 @@ class OrderController extends Controller
     public function store(StoreOrderRequest $request)
     {
         $userId = $request->user()->id;
+        $data = $request->validated();
 
-        $data = $request->validate([
-            'customer_id' => ['required', Rule::exists('customers', 'id')->where('user_id', $userId)],
-            'notes' => ['nullable', 'string'],
-            'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', Rule::exists('products', 'id')->where('user_id', $userId)],
-            'items.*.quantity' => ['required', 'integer', 'min:1'],
-        ]);
-
-
-        $order = DB::transaction(function () use ($request, $data) {
+        $order = DB::transaction(function () use ($request, $data, $userId) {
             $order = $request->user()->orders()->create([
                 'customer_id' => $data['customer_id'],
+                'order_date' => now(),
                 'notes' => $data['notes'] ?? null,
                 'subtotal' => 0,
                 'shipping_cost' => 0,
@@ -68,36 +63,62 @@ class OrderController extends Controller
             ]);
 
             $subtotal = 0;
-            $short = false;
+            $needsStock = false;
 
-            foreach ($data['items'] as $row) {
-                $product = $request->user()->products()->findOrFail($row['product_id']);
-                $lineTotal = $product->price * $row['quantity'];
+            foreach ($data['items'] as $item) {
+                $product = Product::withStock()
+                    ->where('user_id', $userId)
+                    ->lockForUpdate()
+                    ->findOrFail($item['product_id']);
+
+                if (! $product->is_active) {
+                    throw ValidationException::withMessages([
+                        'items' => "{$product->name} is inactive.",
+                    ]);
+                }
+
+                if ($product->stock < $item['quantity']) {
+                    $needsStock = true;
+                }
+
+                $line = $product->price * $item['quantity'];
 
                 $order->items()->create([
                     'product_id' => $product->id,
-                    'quantity' => $row['quantity'],
+                    'quantity' => $item['quantity'],
                     'unit_price' => $product->price,
-                    'total_price' => $lineTotal,
+                    'total_price' => $line,
                 ]);
 
-                $subtotal += $lineTotal;
-
-                if ($product->stock !== null && $row['quantity'] > $product->stock_quantity) {
-                    $short = true;
-                }
+                $subtotal += $line;
             }
+
+            $shipping = $data['shipping_cost'] ?? 0;
 
             $order->update([
                 'subtotal' => $subtotal,
-                'total_amount' => $subtotal + $order->shipping_cost,
-                'status' => $short ? 'awaiting_stock' : 'pending',
+                'shipping_cost' => $shipping,
+                'total_amount' => $subtotal + $shipping,
+                'status' => $needsStock ? 'awaiting_stock' : 'pending',
+            ]);
+
+            $order->payment()->create([
+                'amount' => $subtotal + $shipping,
+                'payment_method' => $data['payment_method'],
+                'status' => 'pending',
+            ]);
+
+            $order->shipment()->create([
+                'address' => $data['address'],
+                'courier_name' => $data['courier_name'] ?? null,
+                'tracking_number' => $data['tracking_number'] ?? null,
+                'status' => 'pending',
             ]);
 
             return $order;
         });
 
-        return redirect("/orders/{$order->id}");
+        return redirect('/orders');
     }
 
     /**

@@ -17,14 +17,44 @@ class InventoryController extends Controller
      */
     public function index(Request $request)
     {
+        $totalAdjustment = Inventory::whereHas(
+            'product',
+            fn($q) => $q->where('user_id', $request->user()->id)
+        )->count();
+
+        $stockAddedCount = Inventory::whereHas(
+            'product',
+            fn($q) => $q->where('user_id', $request->user()->id)
+        )->where('adjustment_type', 'Addation')->count();
+
+        $stockMinusCount = Inventory::whereHas(
+            'product',
+            fn($q) => $q->where('user_id', $request->user()->id)
+        )->where('adjustment_type', 'Subtraction')->count();
+
         return Inertia::render('inventory/index', [
             'collection' => InventoryResources::collection(
                 Inventory::with('product')
-                    ->whereHas('product', fn($q) => $q->where('user_id', $request->user()->id))
+                    ->whereHas(
+                        'product',
+                        fn($q) => $q->where('user_id', $request->user()->id)
+                    )
                     ->latest('id')
-                    ->get(),
+                    ->paginate(5)
             ),
-            'products' => $request->user()->products()->select('id', 'name')->orderBy('name')->get(),
+
+            'products' => $request->user()
+                ->products()
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get(),
+
+            'statistics' => [
+                'total_adjustment' => $totalAdjustment,
+                'stock_added' => $stockAddedCount,
+                'stock_subtracted' => $stockMinusCount,
+                'total_product' => $request->user()->products()->count(),
+            ],
         ]);
     }
 

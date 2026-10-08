@@ -62,14 +62,6 @@ const mainNavItems: NavItem[] = [
         ]
 
     },
-    {
-        title: 'Insight',
-        items: [{
-            subtitle: 'Report',
-            href: orders.index(),
-            icon: ChartColumnBig,
-        }]
-    }
   
 
 ];

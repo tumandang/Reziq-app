@@ -33,7 +33,7 @@ export interface Customer{
     id:number;
     name:string;
     phone:string;
-    address:string;
+    address:string | null;
     notes:string;
 }
 export interface OrderItem {
@@ -51,7 +51,6 @@ export interface OrderItem {
 export interface Order {
     [x: string]: any;
     id: number;
-    order_number: string;
     status: 'pending' | 'awaiting_stock' | 'processing' | 'completed' | 'cancelled';
     subtotal: string;
     shipping_cost: string;
