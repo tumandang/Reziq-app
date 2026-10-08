@@ -26,9 +26,12 @@ export default function CustomerPanel({ customers, value, onChange }: Props) {
     const { data, setData } = useForm(emptyForm);
     if (customers.length === 0) {
         return (
-            <div className="flex flex-1 items-center justify-center text-muted-foreground gap-x-4">
-                <span>No Customer Found.</span>
-                <Link href='/customers' className="p-2 rounded-2xl bg-white"><Plus /></Link>
+            <div className="flex  w-80  border items-center justify-center text-muted-foreground ">
+                <div className="flex items-center justify-between border-b px-4 py-3 gap-x-4">
+                    <span>No Customer Found.</span>
+                    <Link href='/customers' className="rounded-xl bg-transparent border px-2 py-1 text-sm text-black flex text-center justify-center shadow"><Plus className="text-white" /></Link>
+                </div>
+                
             </div>
         )
     }
