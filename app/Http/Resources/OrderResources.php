@@ -21,12 +21,14 @@ class OrderResources extends JsonResource
         'shipping_cost' => $this->shipping_cost,
         'total_amount' => $this->total_amount,
         'notes' => $this->notes,
+        'order_date' => $this->order_date,
         'created_at' => $this->created_at,
         'items_count' => $this->whenCounted('items'),
         'customer' => $this->whenLoaded('customer', fn () => [
             'id' => $this->customer->id,
             'name' => $this->customer->name,
             'phone' => $this->customer->phone,
+            'address' => $this->customer->address
         ]),
         'items' => $this->whenLoaded('items', fn () => $this->items->map(fn ($item) => [
             'id' => $item->id,
@@ -37,8 +39,11 @@ class OrderResources extends JsonResource
                 'id' => $item->product->id,
                 'name' => $item->product->name,
                 'stock' => $item->product->stock,
+                'price' => $item->product->price
             ],
         ])),
+         'payment' => $this->whenLoaded('payment'),
+        'shipment' => $this->whenLoaded('shipment'),
     ];
     }
 }

@@ -48,6 +48,22 @@ export interface OrderItem {
     };
 }
 
+export interface Payment {
+    amount: string;
+    payment_method: string;
+    status: 'pending' | 'completed' | 'failed' | 'refunded';
+    paid_at: string | null;
+}
+
+export interface Shipment {
+    courier_name: string | null;
+    tracking_number: string | null;
+    address: string;
+    status: 'pending' | 'shipped' | 'delivered' | 'returned';
+    shipped_at: string | null;
+    delivered_at: string | null;
+}
+
 export interface Order {
     [x: string]: any;
     id: number;
@@ -57,13 +73,21 @@ export interface Order {
     total_amount: string;
     notes: string | null;
     created_at: string;
+    order_date: string;
     items_count?: number;
     customer: {
         id: number;
         name: string;
         phone: string | null;
+        address: string
     };
-    items?: OrderItem[];
+    items: OrderItem[];
+    payment: Payment | null;
+    shipment: Shipment | null;
+}
+
+export interface Shipment {
+    id:number;
 }
 
 export interface CartItem {

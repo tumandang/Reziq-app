@@ -28,6 +28,7 @@ class StoreOrderRequest extends FormRequest
             'customer_id' => ['required', Rule::exists('customers', 'id')->where('user_id', $userId)],
             'notes' => ['nullable', 'string'],
             'payment_method' => ['required', 'in:QR_Code,bank_transfer,cod,online_banking'],
+            'payment_status' => ['required', 'in:pending,completed,failed,refunded'],
             'shipping_cost' => ['nullable', 'numeric', 'min:0'],
             'address' => ['required', 'string'],
             'items' => ['required', 'array', 'min:1'],
@@ -35,6 +36,7 @@ class StoreOrderRequest extends FormRequest
             'items.*.quantity' => ['required', 'integer', 'min:1'],
             'courier_name' => ['nullable', 'string'],
             'tracking_number' => ['nullable', 'string'],
+            'order_date' => ['date']
         ];
     }
 }

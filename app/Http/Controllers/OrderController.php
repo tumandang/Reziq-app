@@ -23,7 +23,7 @@ class OrderController extends Controller
     {
         return Inertia::render('orders/index', [
             'collection' => OrderResources::collection(
-                $request->user()->orders()->with('customer:id,name')->withCount('items')->latest()->paginate(15)
+                $request->user()->orders()->with(['customer:id,name,phone', 'items.product:id,name', 'payment', 'shipment'])->withCount('items')->latest()->get()
             ),
         ]);
     }
@@ -105,7 +105,7 @@ class OrderController extends Controller
             $order->payment()->create([
                 'amount' => $subtotal + $shipping,
                 'payment_method' => $data['payment_method'],
-                'status' => 'pending',
+                'status' => $data['payment_status'],
             ]);
 
             $order->shipment()->create([
@@ -142,14 +142,64 @@ class OrderController extends Controller
      */
     public function update(UpdateOrderRequest $request, Order $order)
     {
-        //
+        $validated = $request->validate([
+            'status' => 'required|in:pending,awaiting_stock,processing,completed,cancelled',
+        ]);
+        $userId = $request->user()->id;
+
+
+        DB::transaction(function () use ($order, $validated, $userId) {
+            $order = Order::with('items')->lockForUpdate()->find($order->id);
+
+            $old = $order->status;
+            $new = $validated['status'];
+
+            if ($old !== 'completed' && $new === 'completed') {
+                foreach ($order->items as $item) {
+                    $product = Product::withStock()
+                        ->lockForUpdate()
+                        ->findOrFail($item->product_id);
+
+                    if ($product->stock < $item->quantity) {
+                        throw ValidationException::withMessages([
+                            'status' => "Not enough stock for {$product->name}",
+                        ]);
+                    }
+
+                    $product->inventory()->create([
+                        'adjustment_type' => 'Subtraction',
+                        'quantity' => $item->quantity,
+                        'reason' =>  "Order #ORD{$order->id}"
+                    ]);
+                }
+            }
+
+            if ($old === 'completed' && $new !== 'completed') {
+                foreach ($order->items as $item) {
+                    Product::findOrFail($item->product_id)->inventory()->create([
+                        'adjustment_type' => 'Addation',
+                        'quantity' => $item->quantity,
+                        
+                    ]);
+                }
+            }
+            $order->update(['status' => $new]);
+        });
+
+
+
+        return back();
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Order $order)
+    public function destroy(Request $request,Order $order)
     {
-        //
+        
+        $order->delete();
+
+        return redirect('/orders')->with('message', 'Order Deleted!');
     }
+   
 }

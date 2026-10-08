@@ -18,10 +18,7 @@ import { Label } from "@/components/ui/label"
 import {
     InputGroup,
     InputGroupAddon,
-    InputGroupButton,
     InputGroupInput,
-    InputGroupText,
-    InputGroupTextarea,
 } from "@/components/ui/input-group"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Product } from '@/types';
@@ -43,7 +40,6 @@ export default function Index({ collection }: Props) {
     const [isEdit, setIsEdit] = useState(false);
     const [editId, setEditId] = useState(null);
     const [search, setSearch] = useState("");
-    console.log(search);
     const handleOpenModal = () => {
         setOpen(true);
         setData(emptyForm);

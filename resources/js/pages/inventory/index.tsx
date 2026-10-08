@@ -23,13 +23,12 @@ import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ChevronDown, Eye, Plus, SquarePen, Trash } from 'lucide-react';
+import { ChevronDown, Eye, Package, PackageMinus, PackagePlus, Plus, RefreshCcw, SquarePen, Trash } from 'lucide-react';
 import inventory from '@/routes/inventory';
 import { Badge } from "@/components/ui/badge"
 import {
     Pagination,
     PaginationContent,
-    PaginationEllipsis,
     PaginationItem,
     PaginationLink,
     PaginationNext,
@@ -53,6 +52,7 @@ type Props = {
 }
 
 export default function Index({ collection, products,statistics }: Props) {
+    console.log(collection.data);
     const adjustmentTypes = [
         { value: 'Addation', label: 'Addition ( + Stock In )' },
         { value: 'Subtraction', label: 'Subtraction ( - Stock In )' },
@@ -115,7 +115,6 @@ export default function Index({ collection, products,statistics }: Props) {
     const stockMinusCount = collection.data.filter(
         (item: any) => item.adjustment_type === 'Subtraction'
     ).length;
-    const productCount = products.length;
     const handleDelete = (id: any) => {
         if (window.confirm('Are you sure to delete this stock adjustment?')) {
             router.delete(`/inventory/${id}`)
@@ -132,6 +131,9 @@ export default function Index({ collection, products,statistics }: Props) {
             <div className="flex md:flex-row gap-4 px-6 py-5 justify-start flex-col">
                 <div className=" flex-1 p-6 border rounded-xl  bg-[#171717]">
                     <div className="flex flex-row space-x-5">
+                         <div className="bg-gray-800 p-4 rounded-xl flex justify-center items-center" >
+                            <RefreshCcw className='text-blue-500' />
+                        </div>
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Total Adjustment</span>
                             <h1 className='text-2xl font-bold'>{statistics.total_adjustment}</h1>
@@ -142,6 +144,9 @@ export default function Index({ collection, products,statistics }: Props) {
                 </div>
                 <div className="flex-1 p-6 border rounded-xl  bg-[#171717]">
                     <div className="flex flex-row space-x-5">
+                        <div className="bg-[#22b57356] p-4 rounded-xl flex justify-center items-center">
+                            <PackagePlus className='text-green-400' />
+                        </div>
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Stock Added ( + ) </span>
                             {stockAddedCount > 1 ? (
@@ -157,7 +162,9 @@ export default function Index({ collection, products,statistics }: Props) {
                 </div>
                 <div className="flex-1 p-6 border rounded-xl  bg-[#171717]">
                     <div className="flex flex-row space-x-5">
-
+                        <div className="bg-[#ef44446c] p-4 rounded-xl flex justify-center items-center">
+                            <PackageMinus className='text-red-300' />
+                        </div>
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Stock Subtracted ( - )</span>
                             {stockMinusCount > 1 ? (
@@ -173,6 +180,9 @@ export default function Index({ collection, products,statistics }: Props) {
                 </div>
                 <div className="flex-1 p-6 border rounded-xl  bg-[#171717]">
                     <div className="flex flex-row space-x-5">
+                        <div className="bg-[#f59f0b63] p-4 rounded-xl flex justify-center items-center">
+                            <Package className='text-yellow-400' />
+                        </div>
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Total Product </span>
                             <h1 className='text-2xl font-bold'>{statistics.total_product} </h1>
@@ -222,9 +232,6 @@ export default function Index({ collection, products,statistics }: Props) {
                                 <TableCell>{item.quantity}</TableCell>
                                 <TableCell>{item.reason}</TableCell>
                                 <TableCell className='flex items-center justify-end gap-x-2'>
-                                    <Button variant="outline" title='Edit' onClick={() => handleEditMode(item)}>
-                                        <SquarePen />
-                                    </Button>
                                     <Button variant="outline" onClick={() => handleDelete(item.id)}>
                                         <Trash className='text-red-500' />
                                     </Button>
@@ -355,7 +362,7 @@ export default function Index({ collection, products,statistics }: Props) {
                             </div>
                             <div className="grid gap-3">
                                 <Label htmlFor="Reason">Reason</Label>
-                                <Input id="Reason" name="Reason" onChange={(e) => setData('reason', e.target.value)} />
+                                <Input id="Reason" name="Reason" onChange={(e) => setData('reason', e.target.value)} value={data.reason} />
                             </div>
                         </FieldGroup>
                         <DialogFooter>

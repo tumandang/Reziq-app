@@ -24,6 +24,7 @@ export interface CheckoutDetails {
     shipping_cost: string;
     courier_name: string;
     tracking_number: string;
+    payment_status: string;
 }
 
 interface Props {
@@ -43,6 +44,12 @@ const PAYMENT_METHODS = [
     { value: 'bank_transfer', label: 'Bank Transfer' },
     { value: 'cod', label: 'Cash on Delivery' },
 ];
+const PAYMENT_STATUS = [
+    { value: 'pending', label: 'Pending' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'failed', label: 'Failed' },
+    { value: 'refunded', label: 'Refunded' },
+];
 
 const emptyDetails: CheckoutDetails = {
     payment_method: 'online_banking',
@@ -50,6 +57,7 @@ const emptyDetails: CheckoutDetails = {
     shipping_cost: '',
     courier_name: '',
     tracking_number: '',
+    payment_status:'completed',
 };
 
 export default function CartPanel({
@@ -58,10 +66,10 @@ export default function CartPanel({
     const [open, setOpen] = useState(false);
     const [details, setDetails] = useState<CheckoutDetails>(emptyDetails);
     const [addressMode, setAddressMode] = useState<'customer' | 'new'>('new');
-    const set = (key: keyof CheckoutDetails, value: string) =>
-        setDetails(d => ({ ...d, [key]: value }));
+    const set = (key: keyof CheckoutDetails, value: string) => setDetails(d => ({ ...d, [key]: value }));
 
     const paymentLabel = PAYMENT_METHODS.find(m => m.value === details.payment_method)?.label;
+    const paymentStatusLabel = PAYMENT_STATUS.find(m => m.value === details.payment_status)?.label;
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -154,6 +162,29 @@ export default function CartPanel({
                                             onValueChange={v => set('payment_method', v)}
                                         >
                                             {PAYMENT_METHODS.map(m => (
+                                                <DropdownMenuRadioItem key={m.value} value={m.value}>
+                                                    {m.label}
+                                                </DropdownMenuRadioItem>
+                                            ))}
+                                        </DropdownMenuRadioGroup>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </Field>
+                            <Field>
+                                <Label>Payment Status</Label>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="outline" type="button" className="w-full justify-between font-normal">
+                                            {paymentStatusLabel}
+                                            <ChevronDown className="size-4 opacity-50" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width)">
+                                        <DropdownMenuRadioGroup
+                                            value={details.payment_status}
+                                            onValueChange={v => set('payment_status', v)}
+                                        >
+                                            {PAYMENT_STATUS.map(m => (
                                                 <DropdownMenuRadioItem key={m.value} value={m.value}>
                                                     {m.label}
                                                 </DropdownMenuRadioItem>
