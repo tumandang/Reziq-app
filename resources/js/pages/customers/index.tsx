@@ -142,7 +142,6 @@ export default function Index({ collection }: Props) {
                             <TableHead>Customer Name</TableHead>
                             <TableHead>Phone Number</TableHead>
                             <TableHead>Address</TableHead>
-                            <TableHead>Notes</TableHead>
                             <TableHead className='text-end'>Action</TableHead>
 
                         </TableRow>
@@ -159,7 +158,6 @@ export default function Index({ collection }: Props) {
                                     <TableCell>{item.name}</TableCell>
                                     <TableCell>{item.phone}</TableCell>
                                     <TableCell>{item.address}</TableCell>
-                                    <TableCell>{item.notes}</TableCell>
                                     <TableCell className='flex items-center justify-end gap-x-2'>
                                         <Button variant="outline" title='Edit' onClick={() => handleEditMode(item)}>
                                             <SquarePen className='text-green-600' />

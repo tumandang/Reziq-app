@@ -72,7 +72,7 @@ const footerNavItems: NavItem[] = [
         items: [
             {
                 subtitle: 'Repository',
-                href: 'https://github.com/laravel/react-starter-kit',
+                href: 'https://github.com/tumandang/Reziq-app.git',
                 icon: FolderGit2,
             },
             {

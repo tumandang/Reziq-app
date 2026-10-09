@@ -1,5 +1,6 @@
-import { ActivityIcon, TrendingUp } from "lucide-react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import { TrendingDown, TrendingUp } from "lucide-react"
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
+
 import {
   Card,
   CardContent,
@@ -16,48 +17,28 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
-import { Activity } from "react"
-export const description = "An area chart with a legend"
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-]
+
+interface Props {
+  data: { month: string; revenue: number; orders: number }[]
+  trend: number | null
+  period: string
+}
+
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "var(--chart-1)",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "var(--chart-2)",
-  },
+  revenue: { label: "Revenue (RM)", color: "var(--chart-1)" },
+  orders: { label: "Orders", color: "var(--chart-2)" },
 } satisfies ChartConfig
-export function Chart() {
+
+export function ChartLineMultiple({ data, trend, period }: Props) {
   return (
-    <Card className="">
+    <Card>
       <CardHeader>
-        <CardTitle className="flex justify-start items-center gap-x-3">
-            <ActivityIcon className=" text-green-500"/>
-            Sales Statistic
-            </CardTitle>
-        <CardDescription>
-          Monthly revenue overview
-        </CardDescription>
+        <CardTitle>Sales Statistic</CardTitle>
+        <CardDescription>Revenue and orders, last 6 months</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[250px] w-full">
-          <AreaChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
+          <LineChart accessibilityLayer data={data} margin={{ left: 12, right: 12 }}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"
@@ -66,40 +47,39 @@ export function Chart() {
               tickMargin={8}
               tickFormatter={(value) => value.slice(0, 3)}
             />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="line" />}
+            <YAxis yAxisId="left" hide />
+            <YAxis yAxisId="right" orientation="right" hide />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+            <Line
+              yAxisId="left"
+              dataKey="revenue"
+              type="monotone"
+              stroke="var(--color-revenue)"
+              strokeWidth={2}
+              dot={false}
             />
-            <Area
-              dataKey="mobile"
-              type="natural"
-              fill="var(--color-mobile)"
-              fillOpacity={0.4}
-              stroke="var(--color-mobile)"
-              stackId="a"
-            />
-            <Area
-              dataKey="desktop"
-              type="natural"
-              fill="var(--color-desktop)"
-              fillOpacity={0.4}
-              stroke="var(--color-desktop)"
-              stackId="a"
+            <Line
+              yAxisId="right"
+              dataKey="orders"
+              type="monotone"
+              stroke="var(--color-orders)"
+              strokeWidth={2}
+              dot={false}
             />
             <ChartLegend content={<ChartLegendContent />} />
-          </AreaChart>
+          </LineChart>
         </ChartContainer>
       </CardContent>
       <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 leading-none font-medium">
-              Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              January - June 2024
-            </div>
+        <div className="grid gap-2 text-sm">
+          <div className="flex items-center gap-2 font-medium leading-none">
+            {trend == null
+              ? "No data from last month to compare"
+              : `${trend >= 0 ? "Up" : "Down"} ${Math.abs(trend)}% this month`}
+            {trend != null &&
+              (trend >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />)}
           </div>
+          <div className="leading-none text-muted-foreground">{period}</div>
         </div>
       </CardFooter>
     </Card>

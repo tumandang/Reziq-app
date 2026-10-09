@@ -1,10 +1,11 @@
 import { Head } from '@inertiajs/react';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import { dashboard } from '@/routes';
-import { AlertCircle, CircleDollarSign, CreditCard, DollarSign, DollarSignIcon, Loader, TrendingDown, TrendingUp, Truck, Users } from 'lucide-react';
+import { AlertCircle, Banknote, CircleDollarSign, CreditCard, DollarSign, DollarSignIcon, Loader, TrendingDown, TrendingUp, Truck, Users, X } from 'lucide-react';
 import { SummaryCard } from '@/components/ui/summary-card';
-import { Chart } from '@/components/chart';
+
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChartLineMultiple } from '@/components/chart';
 
 const summaryData = [
     { title: "Total Revenue", icon: DollarSign, value: "RM2333" },
@@ -13,25 +14,44 @@ const summaryData = [
     { title: "Cost", icon: TrendingDown, value: "RM123" },
 
 ]
-export default function Dashboard() {
+interface Props {
+    summary: Record<'revenue' | 'customers' | 'sales' | 'awaiting', { value: number; change: number | null }>;
+    breakdown: {
+        sales: { count: number; amount: number };
+        lowStock: number;
+        cod: { count: number; amount: number };
+        pending: { count: number; amount: number };
+    };
+    chart: { month: string; revenue: number; orders: number }[];
+    trend: number | null;
+    period: string;
+}
+const rm = (n: number) => `RM ${n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+export default function Dashboard({ summary, breakdown, chart, trend, period }: Props) {
+    const cards = [
+        { title: 'Revenue (this month)', icon: DollarSign, value: rm(summary.revenue.value), change: summary.revenue.change },
+        { title: 'Total Customers', icon: Users, value: String(summary.customers.value), change: summary.customers.change },
+        { title: 'Sales (this month)', icon: CreditCard, value: String(summary.sales.value), change: summary.sales.change },
+        { title: 'Total Cost', icon: Banknote, value: rm(summary.awaiting.value), change: null },
+    ];
+
+    const rows = [
+        { icon: CircleDollarSign, title: 'Total Sales', sub: `${breakdown.sales.count} Sales`, value: rm(breakdown.sales.amount) },
+        
+        { icon: Truck, title: 'Total COD', sub: `${breakdown.cod.count} Orders`, value: rm(breakdown.cod.amount) },
+        { icon: Loader, title: 'Pending ', sub: `${breakdown.pending.count} Orders`, value: rm(breakdown.pending.amount) },
+        { icon: AlertCircle, title: 'Low Stock', sub: 'Low stock products', value: String(breakdown.lowStock) },
+    ];
     return (
         <>
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    {summaryData.map((item) => (
-                        <SummaryCard
-                            key={item.title}
-                            title={item.title}
-                            icon={item.icon}
-                            value={item.value}
-
-                        />
-                    ))}
+                    {cards.map(c => <SummaryCard key={c.title} {...c} />)}
                 </div>
                 <div className="mt-5 grid grid-cols-4 gap-4 ">
                     <div className="col-span-3">
-                        <Chart />
+                        <ChartLineMultiple data={chart} trend={trend} period={period} />
                     </div>
                     <Card>
                         <CardHeader>
@@ -39,73 +59,22 @@ export default function Dashboard() {
                             <CardDescription>Breakdown of this month</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="flex flex-col gap-y-4 h-[250px]">
-                                <div className="bg-[#171717] px-4 py-2 flex flex-row flex-1 rounded-xl">
-                                    <div className="flex justify-center items-center gap-x-2">
-                                        <CircleDollarSign className='w-6 h-6 text-white' />
-                                        <div className="flex flex-col ">
-                                            <h2 className='text-sm font-bold'>Total Sales</h2>
-                                            <p className='text-xs text-muted-foreground'> 765 Sales</p>
+                            <div className="flex h-[250px] flex-col gap-y-4">
+                                {rows.map(r => (
+                                    <div key={r.title} className="flex flex-1 flex-row rounded-xl bg-muted px-4 py-2">
+                                        <div className="flex items-center gap-x-2">
+                                            <r.icon className="h-6 w-6" />
+                                            <div className="flex flex-col">
+                                                <h2 className="text-sm font-bold">{r.title}</h2>
+                                                <p className="text-xs text-muted-foreground">{r.sub}</p>
+                                            </div>
                                         </div>
+                                        <div className="flex flex-1 items-center justify-end font-semibold">{r.value}</div>
                                     </div>
-
-                                    <div className="flex items-center justify-end text-end  flex-1 font-semibold">
-                                        RM 2123
-                                    </div>
-                                </div>
-                                <div className="bg-[#171717] px-4 py-2 flex flex-row flex-1 rounded-xl">
-                                    <div className="flex justify-center items-center gap-x-2">
-                                        <AlertCircle className='w-6 h-6 text-white' />
-                                        <div className="flex flex-col ">
-                                            <h2 className='text-sm font-bold'>Low Stock</h2>
-                                            <p className='text-xs text-muted-foreground'>Low Stock Product</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center justify-end text-end  flex-1 font-semibold">
-                                        04
-                                    </div>
-                                </div>
-                                <div className="bg-[#171717] px-4 py-2 flex flex-row flex-1 rounded-xl">
-                                    <div className="flex justify-center items-center gap-x-2">
-                                        <Truck className='w-6 h-6 text-white' />
-                                        <div className="flex flex-col ">
-                                            <h2 className='text-sm font-bold'>Total COD</h2>
-                                            <p className='text-xs text-muted-foreground'> 765 Orders</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center justify-end text-end  flex-1 font-semibold">
-                                        RM 23
-                                    </div>
-                                </div>
-                                <div className="bg-[#171717] px-4 py-2 flex flex-row flex-1 rounded-xl">
-                                    <div className="flex justify-center items-center gap-x-2">
-                                        <Loader className='w-6 h-6 text-white' />
-                                        <div className="flex flex-col ">
-                                            <h2 className='text-sm font-bold'>Pending Payment</h2>
-                                            <p className='text-xs text-muted-foreground'> 76 Orders</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center justify-end text-end  flex-1 font-semibold">
-                                        RM 123
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </CardContent>
-                        <CardFooter>
-                            <div className="flex w-full items-start gap-2 text-sm">
-                                <div className="grid gap-2">
-                                    <div className="flex items-center gap-2 leading-none font-medium">
-                                        Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-                                    </div>
-                                    <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                                        January 2026
-                                    </div>
-                                </div>
-                            </div>
-                        </CardFooter>
+                     
                     </Card>
 
                 </div>
