@@ -55,8 +55,8 @@ export default function Dashboard({ summary, breakdown, chart, trend, period }: 
                     </div>
                     <Card>
                         <CardHeader>
-                            <CardTitle>Revenue Breakdown</CardTitle>
-                            <CardDescription>Breakdown of this month</CardDescription>
+                            <CardTitle className='font-lexend'>Revenue Breakdown</CardTitle>
+                            <CardDescription className='font-dm-sans'>Breakdown of this month</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="flex h-[250px] flex-col gap-y-4">
@@ -65,8 +65,8 @@ export default function Dashboard({ summary, breakdown, chart, trend, period }: 
                                         <div className="flex items-center gap-x-2">
                                             <r.icon className="h-6 w-6" />
                                             <div className="flex flex-col">
-                                                <h2 className="text-sm font-bold">{r.title}</h2>
-                                                <p className="text-xs text-muted-foreground">{r.sub}</p>
+                                                <h2 className="text-sm font-bold font-lexend">{r.title}</h2>
+                                                <p className="text-xs text-muted-foreground font-dm-sans">{r.sub}</p>
                                             </div>
                                         </div>
                                         <div className="flex flex-1 items-center justify-end font-semibold">{r.value}</div>

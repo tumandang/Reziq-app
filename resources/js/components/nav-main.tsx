@@ -16,10 +16,10 @@ export function NavMain({ items }: { items: NavItem[] }) {
           <>
             {items.map((group) => (
                 <SidebarGroup key={group.title} className="px-2 py-0">
-                    <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
+                    <SidebarGroupLabel className='font-lexend'>{group.title}</SidebarGroupLabel>
                     <SidebarMenu>
                         {group.items?.map((item) => (
-                            <SidebarMenuItem key={item.subtitle}>
+                            <SidebarMenuItem className='font-dm-sans' key={item.subtitle}>
                                 <SidebarMenuButton
                                     asChild
                                     isActive={isCurrentUrl(item.href)}
