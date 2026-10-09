@@ -21,10 +21,19 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
+        $orders = $request->user()->orders();
+        $statistics = [
+            'total_order'      => (clone $orders)->count(),
+            'total_sales'      => (clone $orders)->sum('subtotal'),
+            'processing_order' => (clone $orders)->where('status', 'pending')->count(),
+            'cod_sales' => (clone $orders)->whereHas('payment', fn($q) => $q->where('payment_method', 'cod'))->sum('subtotal'),
+        ];
+
         return Inertia::render('orders/index', [
             'collection' => OrderResources::collection(
-                $request->user()->orders()->with(['customer:id,name,phone', 'items.product:id,name', 'payment', 'shipment'])->withCount('items')->latest()->get()
+                $request->user()->orders()->with(['customer:id,name,phone', 'items.product:id,name', 'payment', 'shipment'])->withCount('items')->latest()->paginate(7)
             ),
+            'statistics' => $statistics,
         ]);
     }
 
@@ -179,7 +188,7 @@ class OrderController extends Controller
                     Product::findOrFail($item->product_id)->inventory()->create([
                         'adjustment_type' => 'Addation',
                         'quantity' => $item->quantity,
-                        
+
                     ]);
                 }
             }
@@ -194,12 +203,11 @@ class OrderController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request,Order $order)
+    public function destroy(Request $request, Order $order)
     {
-        
+
         $order->delete();
 
         return redirect('/orders')->with('message', 'Order Deleted!');
     }
-   
 }

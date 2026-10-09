@@ -20,7 +20,8 @@ class CustomerController extends Controller
         if ($request->search){
             $query->where('name','like',"%{$request->search}%")->orWhere('phone','like',"%{$request->search}%");
         }
-        $searchproduct = $query->orderBy('id', 'DESC')->get();
+        $searchproduct = $query->orderBy('id', 'DESC')->paginate(7)->withQueryString();
+;
         return Inertia::render('customers/index', [
             'collection' => CustomerResources::collection(
                 $searchproduct

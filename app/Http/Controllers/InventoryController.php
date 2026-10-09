@@ -40,7 +40,7 @@ class InventoryController extends Controller
                         fn($q) => $q->where('user_id', $request->user()->id)
                     )
                     ->latest('id')
-                    ->paginate(5)
+                    ->paginate(7)
             ),
 
             'products' => $request->user()

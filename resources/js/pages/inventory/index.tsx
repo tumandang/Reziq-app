@@ -35,13 +35,16 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination"
 const emptyForm = { product_id: '', adjustment_type: '', quantity: '', reason: '' }
-type Props = {
-    collection: {
-        data: any[];
+type Paginate<T> ={
+    data: T[];
+    meta: {
         current_page: number;
         last_page: number;
         total: number;
-    };
+    }
+}
+type Props = {
+    collection: Paginate<any>;
     products: { id: number; name: string }[];
     statistics: {
         total_adjustment: number;
@@ -49,10 +52,11 @@ type Props = {
         stock_subtracted: number;
         total_product: number;
     };
+    
 }
 
 export default function Index({ collection, products,statistics }: Props) {
-    console.log(collection.data);
+
     const adjustmentTypes = [
         { value: 'Addation', label: 'Addition ( + Stock In )' },
         { value: 'Subtraction', label: 'Subtraction ( - Stock In )' },
@@ -248,19 +252,19 @@ export default function Index({ collection, products,statistics }: Props) {
                     <PaginationItem>
                         <PaginationPrevious href="#" onClick={(e) => {
                             e.preventDefault();
-                            if (collection.current_page > 1) {
-                                handlePageChange(collection.current_page - 1)
+                            if (collection.meta.current_page > 1) {
+                                handlePageChange(collection.meta.current_page - 1)
                             }
                         }} />
                     </PaginationItem>
                     {Array.from(
-                        { length: collection.last_page },
+                        { length: collection.meta.last_page },
                         (_, index) => index + 1
                     ).map((page) => (
                         <PaginationItem key={page}>
                             <PaginationLink
                                 href="#"
-                                isActive={page === collection.current_page}
+                                isActive={page === collection.meta.current_page}
                                 onClick={(e) => {
                                     e.preventDefault();
                                     handlePageChange(page);
@@ -276,8 +280,8 @@ export default function Index({ collection, products,statistics }: Props) {
                             onClick={(e) => {
                                 e.preventDefault();
 
-                                if (collection.current_page < collection.last_page) {
-                                    handlePageChange(collection.current_page + 1);
+                                if (collection.meta.current_page < collection.meta.last_page) {
+                                    handlePageChange(collection.meta.current_page + 1);
                                 }
                             }}
                         />

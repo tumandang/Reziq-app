@@ -21,15 +21,31 @@ import { Customer } from '@/types';
 import { Plus, Search, SquarePen, Trash } from 'lucide-react';
 import customers from '@/routes/customers';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
-
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
 
 
 
 
 const emptyForm = { id: '', name: '', address: '', notes: '', phone: '', }
+type Paginated<T> = {
+    data: T[];
+    meta: {
+        current_page: number;
+        last_page: number;
+        total: number;
+    };
+};
 type Props = {
-    collection: Customer
-}
+    collection: Paginated<Customer>
+};
+
 
 export default function Index({ collection }: Props) {
 
@@ -63,7 +79,12 @@ export default function Index({ collection }: Props) {
         }
 
     };
-
+        const handlePageChange = (page: number) => {
+        router.get('/customers', { page ,search}, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
     const handleEditMode = (customer: any) => {
         setData({
             id: customer.id,
@@ -195,7 +216,47 @@ export default function Index({ collection }: Props) {
                     </form>
                 </DialogContent>
             </Dialog>
+            <Pagination>
+                <PaginationContent>
+                    <PaginationItem>
+                        <PaginationPrevious href="#" onClick={(e) => {
+                            e.preventDefault();
+                            if (collection.meta.current_page > 1) {
+                                handlePageChange(collection.meta.current_page - 1)
+                            }
+                        }} />
+                    </PaginationItem>
+                    {Array.from(
+                        { length: collection.meta.last_page },
+                        (_, index) => index + 1
+                    ).map((page) => (
+                        <PaginationItem key={page}>
+                            <PaginationLink
+                                href="#"
+                                isActive={page === collection.meta.current_page}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handlePageChange(page);
+                                }}
+                            >
+                                {page}
+                            </PaginationLink>
+                        </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                        <PaginationNext
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
 
+                                if (collection.meta.current_page < collection.meta.last_page) {
+                                    handlePageChange(collection.meta.current_page + 1);
+                                }
+                            }}
+                        />
+                    </PaginationItem>
+                </PaginationContent>
+            </Pagination>
 
         </>
     );

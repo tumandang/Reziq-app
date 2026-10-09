@@ -27,11 +27,34 @@ import {
     FieldLabel,
     FieldTitle,
 } from "@/components/ui/field"
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Badge } from '@/components/ui/badge';
 import OrderDetailsDialog from './order-details-dialog';
+type Paginate<T> = {
+    data: T[];
+    meta: {
+        current_page: number,
+        last_page: number,
+        total: number,
+    }
+}
 type Props = {
-    collection: { data: Order[], shipment: Shipment };
+    collection: Paginate<Order>;
+    statistics: {
+        total_order: number;
+        total_sales: number;
+        processing_order: number;
+        cod_sales: number;
+    };
+
 };
 
 const statusLabel: Record<Order['status'], string> = {
@@ -95,13 +118,20 @@ const statusOrder = [
     },
 ];
 
-export default function Index({ collection }: Props) {
-    const emptyForm = { id: '', status:'' }
+
+export default function Index({ collection ,statistics}: Props) {
+    const emptyForm = { id: '', status: '' }
     const { data, setData } = useForm(emptyForm);
     const [editId, setEditId] = useState(null);
-    const [deliveryTime, setDeliveryTime] = useState("asap")
     const [open, setOpen] = useState(false);
     const [open1, setOpen1] = useState(false);
+
+    const handlePageChange = (page: number) => {
+        router.get('/orders', { page }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
     const handleCloseModal = () => {
         setOpen(false);
         setData(emptyForm)
@@ -126,17 +156,14 @@ export default function Index({ collection }: Props) {
     }
     const [selected, setSelected] = useState<Order | null>(null);
     const openDetails = (order: Order) => {
-    setSelected(order);
-    setOpen1(true);
-};
+        setSelected(order);
+        setOpen1(true);
+    };
     const handleDelete = (id: any) => {
         if (window.confirm('Are you sure to delete this order?')) {
             router.delete(`/orders/${id}`)
         }
     }
-    const totalSales = collection.data.filter((item) => item.status === 'completed').reduce((sum, item) => sum + Number(item.subtotal), 0);
-    const totalCancel = collection.data.filter((item) =>item.status ==='cancelled').length;
-    const totalProcess = collection.data.filter((item) =>item.status ==='processing').length;
     return (
         <>
             <Head title="Orders" />
@@ -155,8 +182,8 @@ export default function Index({ collection }: Props) {
                             <TrendingUp className='text-blue-500' />
                         </div>
                         <div className="flex flex-col space-y-2">
-                            <span className='text-xs uppercase'>Total Sales</span>
-                            <h1 className='text-2xl font-bold'>{collection.data.length}</h1>
+                            <span className='text-xs uppercase'>Total Order</span>
+                            <h1 className='text-2xl font-bold'>{statistics.total_order}</h1>
                         </div>
                     </div>
 
@@ -169,7 +196,7 @@ export default function Index({ collection }: Props) {
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Total Sales</span>
                             <h1 className='text-2xl font-bold'>
-                                RM {totalSales}
+                                RM {statistics.total_sales}
                             </h1>
                         </div>
                     </div>
@@ -182,7 +209,7 @@ export default function Index({ collection }: Props) {
                         </div>
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Processing Order</span>
-                            <h1 className='text-2xl font-bold'>{totalProcess}</h1>
+                            <h1 className='text-2xl font-bold'>{statistics.processing_order}</h1>
                         </div>
                     </div>
 
@@ -193,8 +220,8 @@ export default function Index({ collection }: Props) {
                             <CircleAlert className='text-red-300' />
                         </div>
                         <div className="flex flex-col space-y-2">
-                            <span className='text-xs uppercase'>Cancel Order</span>
-                            <h1 className='text-2xl font-bold'>{totalCancel}</h1>
+                            <span className='text-xs uppercase'>Cash on Delivery Order</span>
+                            <h1 className='text-2xl font-bold'>{statistics.cod_sales}</h1>
                         </div>
                     </div>
 
@@ -258,6 +285,47 @@ export default function Index({ collection }: Props) {
                     </TableBody>
                 </Table>
             </div>
+            <Pagination>
+                <PaginationContent>
+                    <PaginationItem>
+                        <PaginationPrevious href="#" onClick={(e) => {
+                            e.preventDefault();
+                            if (collection.meta.current_page > 1) {
+                                handlePageChange(collection.meta.current_page - 1)
+                            }
+                        }} />
+                    </PaginationItem>
+                    {Array.from(
+                        { length: collection.meta.last_page },
+                        (_, index) => index + 1
+                    ).map((page) => (
+                        <PaginationItem key={page}>
+                            <PaginationLink
+                                href="#"
+                                isActive={page === collection.meta.current_page}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handlePageChange(page);
+                                }}
+                            >
+                                {page}
+                            </PaginationLink>
+                        </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                        <PaginationNext
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+
+                                if (collection.meta.current_page < collection.meta.last_page) {
+                                    handlePageChange(collection.meta.current_page + 1);
+                                }
+                            }}
+                        />
+                    </PaginationItem>
+                </PaginationContent>
+            </Pagination>
             <Drawer open={open} onOpenChange={setOpen} direction="right" >
                 <DrawerContent>
                     <DrawerHeader>
@@ -267,7 +335,7 @@ export default function Index({ collection }: Props) {
                         </DrawerDescription>
                     </DrawerHeader>
                     <div className="flex-1 scroll-fade overflow-y-auto p-4">
-                        <RadioGroup value={data.status} onValueChange={(value)=> setData('status',value)} className="gap-2" >
+                        <RadioGroup value={data.status} onValueChange={(value) => setData('status', value)} className="gap-2" >
                             {statusOrder.map((time) => (
                                 <FieldLabel key={time.value} htmlFor={time.id}>
                                     <Field orientation="horizontal">
@@ -297,7 +365,7 @@ export default function Index({ collection }: Props) {
                 </DrawerContent>
             </Drawer>
 
-            <OrderDetailsDialog order={selected} open={open1} onOpenChange={setOpen1}/>
+            <OrderDetailsDialog order={selected} open={open1} onOpenChange={setOpen1} />
         </>
     );
 }

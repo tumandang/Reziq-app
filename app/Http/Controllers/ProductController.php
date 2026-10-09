@@ -14,22 +14,29 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index( Request $request)
+    public function index(Request $request)
     {
-        
+
         $query = $request->user()->products()->withStock();
-        if ($request->search){
-            $query->where('name','like',"%{$request->search}%");
+        if ($request->search) {
+            $query->where('name', 'like', "%{$request->search}%");
         }
-        $searchproduct = $query->orderBy('id', 'DESC')->get();
-        
+        $searchproduct = $query->orderBy('id', 'DESC')->paginate(7);
+        $all = $request->user()->products()->withStock()->get();
+
+        $stat = [
+            'total_product' => $all->count(),
+            'out_of_stock'  => $all->filter(fn($p) => $p->stock <= 0)->count(),
+            'low_stock'     => $all->filter(fn($p) => $p->stock > 0 && $p->stock <= $p->low_stock_threshold + 3)->count(),
+            'in_stock'      => $all->filter(fn($p) => $p->stock > $p->low_stock_threshold && $p->stock > $p->low_stock_threshold + 3)->count(),
+        ];
         return Inertia::render('products/index', [
             'collection' => ProductResources::collection(
                 $searchproduct
-                  
-            )
+
+            ),
+            'statistics' => $stat
         ]);
-        
     }
 
     /**
@@ -47,21 +54,18 @@ class ProductController extends Controller
     {
         $request->user()->products()->create($this->validated($request));
 
-        return redirect('/products')->with('message','Product Added !');
+        return redirect('/products')->with('message', 'Product Added !');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
-    {
-        
-    }
+    public function show(Product $product) {}
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Request $request , Product $product)
+    public function edit(Request $request, Product $product)
     {
         $this->ownerOnly($request, $product);
 
@@ -81,12 +85,12 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request , Product $product)
+    public function destroy(Request $request, Product $product)
     {
         $this->ownerOnly($request, $product);
         $product->delete();
 
-        return redirect('/products')->with('message','Product Deleted!');
+        return redirect('/products')->with('message', 'Product Deleted!');
     }
 
     private function ownerOnly(Request $request, Product $product): void

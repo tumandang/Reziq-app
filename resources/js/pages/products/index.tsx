@@ -23,17 +23,34 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Product } from '@/types';
 import { Box, Check, Plus, Search, SquarePen, Trash, TrendingDown, TrendingUp, TriangleAlert, X } from 'lucide-react';
-
-
-
-
-
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
 const emptyForm = { id: '', name: '', price: '', low_stock_threshold: '' }
+type Paginated<T> = {
+    data: T[];
+    meta: {
+        current_page: number;
+        last_page: number;
+        total: number;
+    };
+};
 type Props = {
-    collection: Product
+    collection: Paginated<Product>;
+    statistics: {
+        total_product: number;
+        out_of_stock: number;
+        low_stock: number;
+        in_stock: number;
+    };
 }
 
-export default function Index({ collection }: Props) {
+export default function Index({ collection ,statistics}: Props) {
 
     const [open, setOpen] = useState(false);
     const { data, setData } = useForm(emptyForm);
@@ -65,7 +82,12 @@ export default function Index({ collection }: Props) {
         }
 
     };
-
+    const handlePageChange = (page: number) => {
+        router.get('/products', { page }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
     const handleEditMode = (product: any) => {
         setData({
             id: product.id,
@@ -85,17 +107,7 @@ export default function Index({ collection }: Props) {
         }
     }
 
-    const inStockCount = collection.data.filter(
-        (item: any) => item.stock > item.low_stock_threshold && item.stock > item.low_stock_threshold  + 3
-    ).length;
 
-    const outStockCount = collection.data.filter(
-        (item:any) => item.stock === 0
-    ).length;
-
-    const LowStockCount = collection.data.filter(
-        (item:any) => item.stock === item.low_stock_threshold || item.stock < item.low_stock_threshold  + 3 && item.stock !== 0
-    ).length;
 
 
     useEffect(() => {
@@ -123,7 +135,7 @@ export default function Index({ collection }: Props) {
                         </div>
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Total Products</span>
-                            <h1 className='text-2xl font-bold'>{collection.data.length}</h1>
+                            <h1 className='text-2xl font-bold'>{statistics.total_product}</h1>
                         </div>
                     </div>
 
@@ -135,7 +147,7 @@ export default function Index({ collection }: Props) {
                         </div>
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>In Stock</span>
-                            <h1 className='text-2xl font-bold'>{inStockCount}
+                            <h1 className='text-2xl font-bold'>{statistics.in_stock}
                             </h1>
                         </div>
                     </div>
@@ -148,7 +160,7 @@ export default function Index({ collection }: Props) {
                         </div>
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Low Stock</span>
-                            <h1 className='text-2xl font-bold'>{LowStockCount}</h1>
+                            <h1 className='text-2xl font-bold'>{statistics.low_stock}</h1>
                         </div>
                     </div>
 
@@ -160,7 +172,7 @@ export default function Index({ collection }: Props) {
                         </div>
                         <div className="flex flex-col space-y-2">
                             <span className='text-xs uppercase'>Out of stock</span>
-                            <h1 className='text-2xl font-bold'>{outStockCount}</h1>
+                            <h1 className='text-2xl font-bold'>{statistics.out_of_stock}</h1>
                         </div>
                     </div>
 
@@ -227,6 +239,47 @@ export default function Index({ collection }: Props) {
                     </TableBody>
                 </Table>
             </div>
+              <Pagination>
+                <PaginationContent>
+                    <PaginationItem>
+                        <PaginationPrevious href="#" onClick={(e) => {
+                            e.preventDefault();
+                            if (collection.meta.current_page > 1) {
+                                handlePageChange(collection.meta.current_page - 1)
+                            }
+                        }} />
+                    </PaginationItem>
+                    {Array.from(
+                        { length: collection.meta.last_page },
+                        (_, index) => index + 1
+                    ).map((page) => (
+                        <PaginationItem key={page}>
+                            <PaginationLink
+                                href="#"
+                                isActive={page === collection.meta.current_page}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handlePageChange(page);
+                                }}
+                            >
+                                {page}
+                            </PaginationLink>
+                        </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                        <PaginationNext
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+
+                                if (collection.meta.current_page < collection.meta.last_page) {
+                                    handlePageChange(collection.meta.current_page + 1);
+                                }
+                            }}
+                        />
+                    </PaginationItem>
+                </PaginationContent>
+            </Pagination>
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-sm">
                     <DialogHeader>
